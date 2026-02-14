@@ -62,87 +62,92 @@ export default function Home() {
     const getCategoryById = (id: string) => categories.find(c => c.id === id);
 
     return (
-        <SafeAreaView className="flex-1 px-6 py-4 justify-between">
-            {/* Header */}
-            <View className="flex-row justify-between items-center">
+        <SafeAreaView className="flex-1 px-5 py-5 justify-between" style={{ backgroundColor: '#0a0a0a' }}>
+            {/* Header - Improved Spacing & Typography */}
+            <View className="flex-row justify-between items-center mb-6">
                 <View>
-                    <Text className="text-gray-500 text-xs font-bold uppercase tracking-widest">Backlog</Text>
-                    <Text className="text-white text-3xl font-bold">{backlog.length}</Text>
+                    <Text className="text-text-tertiary text-xs font-semibold uppercase tracking-widest mb-1">Backlog</Text>
+                    <Text className="text-white text-4xl font-bold tracking-tight">{backlog.length}</Text>
                 </View>
                 <View className="flex-row gap-2">
                     <Link href="/brain" asChild>
                         <Pressable
-                            className="bg-surface px-4 py-3 rounded-full border border-dim"
+                            className="bg-elevated px-4 py-3 rounded-xl border border-dim active:bg-surface"
                             accessibilityLabel="View brain notes"
                             accessibilityRole="button"
+                            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}
                         >
-                            <Text className="text-primary font-bold text-base">🧠</Text>
+                            <Text className="text-lg">🧠</Text>
                         </Pressable>
                     </Link>
                     <Link href="/history" asChild>
                         <Pressable
-                            className="bg-surface px-4 py-3 rounded-full border border-dim"
+                            className="bg-elevated px-4 py-3 rounded-xl border border-dim active:bg-surface"
                             accessibilityLabel="View history"
                             accessibilityRole="button"
+                            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}
                         >
-                            <Text className="text-primary font-bold text-base">📜</Text>
+                            <Text className="text-lg">📜</Text>
                         </Pressable>
                     </Link>
                     <Link href="/backlog" asChild>
                         <Pressable
-                            className="bg-surface px-4 py-3 rounded-full border border-dim"
+                            className="bg-elevated px-4 py-3 rounded-xl border border-dim active:bg-surface"
                             accessibilityLabel="View backlog"
                             accessibilityRole="button"
+                            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}
                         >
-                            <Text className="text-accent font-bold text-base">📋</Text>
+                            <Text className="text-lg">📋</Text>
                         </Pressable>
                     </Link>
                     <Link href="/analytics" asChild>
                         <Pressable
-                            className="bg-surface px-4 py-3 rounded-full border border-dim"
+                            className="bg-elevated px-4 py-3 rounded-xl border border-dim active:bg-surface"
                             accessibilityLabel="View analytics"
                             accessibilityRole="button"
+                            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}
                         >
-                            <Text className="text-focus font-bold text-base">📊</Text>
+                            <Text className="text-lg">📊</Text>
                         </Pressable>
                     </Link>
                     <Link href="/settings" asChild>
                         <Pressable
-                            className="bg-surface px-4 py-3 rounded-full border border-dim"
+                            className="bg-elevated px-4 py-3 rounded-xl border border-dim active:bg-surface"
                             accessibilityLabel="Settings"
                             accessibilityRole="button"
+                            style={{ shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}
                         >
-                            <Text className="text-gray-400 font-bold text-base">⚙️</Text>
+                            <Text className="text-lg">⚙️</Text>
                         </Pressable>
                     </Link>
                 </View>
             </View>
 
-            {/* THE ANCHOR CARD */}
-            <View className="flex-1 justify-center py-8">
+            {/* THE ANCHOR CARD - Improved Spacing & Shadows */}
+            <View className="flex-1 justify-center py-6">
                 {anchor ? (
                     <Animated.View
                         {...panResponder.panHandlers}
-                        style={{ transform: [{ translateX: pan }] }}
-                        className="bg-surface p-6 rounded-3xl border border-dim"
+                        style={[{ transform: [{ translateX: pan }] }, { shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.3, shadowRadius: 16, elevation: 8 }]}
+                        className="bg-elevated p-7 rounded-3xl border border-dim"
                     >
-                        <View className="flex-row items-center justify-between mb-4">
-                            <Text className="text-focus text-xs font-bold uppercase">Current Focus</Text>
-                            <Text className="text-gray-600 text-xs">👈 Defer | Complete 👉</Text>
+                        <View className="flex-row items-center justify-between mb-5">
+                            <Text className="text-primary text-xs font-bold uppercase tracking-wider">Current Focus</Text>
+                            <Text className="text-text-tertiary text-xs font-medium">👈 Defer | Complete 👉</Text>
                         </View>
                         <Text
-                            className="text-white text-3xl font-bold leading-tight mb-4"
+                            className="text-white text-3xl font-bold leading-snug mb-5 tracking-tight"
                             accessibilityRole="header"
                         >
                             {anchor.text}
                         </Text>
 
-                        {/* Deadline Display */}
+                        {/* Deadline Display - Better Typography */}
                         {anchor.deadline && (
-                            <View className="flex-row items-center mb-3">
-                                <Text className={`text-sm font-bold ${anchor.deadline < Date.now() ? 'text-panic' :
-                                    anchor.deadline < Date.now() + 86400000 ? 'text-focus' :
-                                        'text-gray-400'
+                            <View className="flex-row items-center mb-4">
+                                <Text className={`text-sm font-semibold ${anchor.deadline < Date.now() ? 'text-error' :
+                                    anchor.deadline < Date.now() + 86400000 ? 'text-warning' :
+                                        'text-text-secondary'
                                     }`}>
                                     ⏰ Due {format(anchor.deadline, 'MMM d, yyyy')}
                                 </Text>
@@ -169,24 +174,24 @@ export default function Home() {
                             </View>
                         )}
 
-                        <View className="flex-row gap-4">
+                        <View className="flex-row gap-3 mt-2">
                             <Pressable
                                 onPress={completeTop}
-                                className="flex-1 bg-primary h-14 rounded-xl items-center justify-center"
+                                className="flex-1 bg-success h-14 rounded-2xl items-center justify-center active:bg-success/90"
                                 accessibilityLabel="Mark task as done"
                                 accessibilityRole="button"
-                                style={{ minHeight: 48 }}
+                                style={{ minHeight: 56, shadowColor: '#10b981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 4 }}
                             >
-                                <Text className="text-black font-bold text-lg">COMPLETE ✓</Text>
+                                <Text className="text-black font-bold text-base tracking-wide">COMPLETE ✓</Text>
                             </Pressable>
                             <Pressable
                                 onPress={deferTop}
-                                className="w-16 bg-dim h-14 rounded-xl items-center justify-center"
+                                className="w-20 bg-dim h-14 rounded-2xl items-center justify-center active:bg-surface"
                                 accessibilityLabel="Defer task to backlog"
                                 accessibilityRole="button"
-                                style={{ minHeight: 48 }}
+                                style={{ minHeight: 56, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.2, shadowRadius: 4, elevation: 2 }}
                             >
-                                <Text className="text-white font-bold">Later</Text>
+                                <Text className="text-white font-semibold text-sm">Later</Text>
                             </Pressable>
                         </View>
                         <VisualTimer />

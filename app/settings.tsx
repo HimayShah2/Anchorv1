@@ -16,7 +16,7 @@ const HAPTIC_OPTIONS: { label: string; value: Settings['hapticStrength'] }[] = [
 
 export default function SettingsScreen() {
     const { settings, updateSettings, panic } = useStore();
-    const { theme, calendarSync } = settings;
+    const { calendarSync } = settings;
 
     const confirmReset = () => {
         Alert.alert(
@@ -161,33 +161,6 @@ export default function SettingsScreen() {
                         </View>
                     </View>
                 </Pressable>
-
-                {/* Theme */}
-                <View className="bg-surface p-4 rounded-2xl border border-dim mb-3">
-                    <Text className="text-white text-base font-bold mb-3">Theme</Text>
-                    <View className="flex-row gap-2">
-                        <Pressable
-                            onPress={() => updateSettings({ theme: 'dark' })}
-                            className={`flex-1 py-3 rounded-xl ${theme === 'dark' ? 'bg-primary' : 'bg-dim'}`}
-                            accessibilityLabel="Dark theme"
-                            accessibilityRole="button"
-                        >
-                            <Text className={`text-center font-bold ${theme === 'dark' ? 'text-black' : 'text-gray-400'}`}>
-                                🌙 Dark
-                            </Text>
-                        </Pressable>
-                        <Pressable
-                            onPress={() => updateSettings({ theme: 'light' })}
-                            className={`flex-1 py-3 rounded-xl ${theme === 'light' ? 'bg-yellow-400' : 'bg-dim'}`}
-                            accessibilityLabel="Light theme"
-                            accessibilityRole="button"
-                        >
-                            <Text className={`text-center font-bold ${theme === 'light' ? 'text-black' : 'text-gray-400'}`}>
-                                ☀️ Light
-                            </Text>
-                        </Pressable>
-                    </View>
-                </View>
 
                 {/* Calendar Sync */}
                 <View className="bg-surface p-4 rounded-2xl border border-dim mb-3">

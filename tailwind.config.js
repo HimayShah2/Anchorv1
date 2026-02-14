@@ -5,42 +5,79 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Default dark theme
-        'bg': '#000000',
+        // Premium Dark Mode Palette
+        'bg': '#0a0a0a',
         'surface': '#121212',
-        'primary': '#4ADE80',
-        'focus': '#38BDF8',
-        'panic': '#EF4444',
-        'dim': '#27272a',
-        'accent': '#A78BFA',
+        'elevated': '#1a1a1a',
+        'dim': '#2a2a2a',
 
-        // High contrast variants
-        'hc-bg': '#000000',
-        'hc-surface': '#0a0a0a',
-        'hc-text': '#ffffff',
-        'hc-primary': '#00ff00',
-        'hc-focus': '#00ffff',
-        'hc-dim': '#505050',
-        'hc-border': '#a0a0a0',
+        // Primary - Calm Ocean Blues
+        'primary': {
+          DEFAULT: '#38bdf8',
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          200: '#bae6fd',
+          300: '#7dd3fc',
+          400: '#38bdf8',
+          500: '#0ea5e9',
+          600: '#0284c7',
+          700: '#0369a1',
+        },
+
+        // Semantic Colors
+        'success': '#10b981',
+        'warning': '#f59e0b',
+        'error': '#ef4444',
+        'focus': '#38bdf8',
+        'panic': '#ef4444',
+        'accent': '#8b5cf6',
+
+        // Text
+        'text-primary': '#ffffff',
+        'text-secondary': '#a1a1aa',
+        'text-tertiary': '#71717a',
+        'text-disabled': '#52525b',
+
+        // Energy Levels
+        'energy': {
+          1: '#7c3aed',
+          2: '#f59e0b',
+          3: '#38bdf8',
+          4: '#10b981',
+          5: '#06b6d4',
+        },
       },
-      borderWidth: {
-        '3': '3px',
-        '4': '4px',
-        '5': '5px',
+      spacing: {
+        '18': '72px',
+        '22': '88px',
       },
-      minHeight: {
-        'touch': '48px',
-      },
-      minWidth: {
-        'touch': '48px',
+      borderRadius: {
+        '4xl': '32px',
       },
       fontSize: {
-        // Accessibility font size presets
-        'a11y-xs': ['10px', { lineHeight: '1.5' }],
-        'a11y-sm': ['13px', { lineHeight: '1.5' }],
-        'a11y-base': ['16px', { lineHeight: '1.6' }],
-        'a11y-lg': ['20px', { lineHeight: '1.6' }],
-        'a11y-xl': ['26px', { lineHeight: '1.7' }],
+        // Professional Typography Scale
+        'xs': ['12px', { lineHeight: '18px', letterSpacing: '0.01em' }],
+        'sm': ['14px', { lineHeight: '20px', letterSpacing: '0.01em' }],
+        'base': ['16px', { lineHeight: '24px', letterSpacing: '0' }],
+        'lg': ['18px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
+        'xl': ['20px', { lineHeight: '28px', letterSpacing: '-0.01em' }],
+        '2xl': ['24px', { lineHeight: '32px', letterSpacing: '-0.02em' }],
+        '3xl': ['30px', { lineHeight: '36px', letterSpacing: '-0.02em' }],
+        '4xl': ['36px', { lineHeight: '40px', letterSpacing: '-0.03em' }],
+      },
+      fontWeight: {
+        'normal': '400',
+        'medium': '500',
+        'semibold': '600',
+        'bold': '700',
+      },
+      letterSpacing: {
+        'tighter': '-0.03em',
+        'tight': '-0.02em',
+        'normal': '0',
+        'wide': '0.01em',
+        'wider': '0.02em',
+        'widest': '0.04em',
       },
     },
   },
