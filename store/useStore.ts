@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
-import * as FileSystem from 'expo-file-system';
+import { writeAsStringAsync, documentDirectory } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 
 // --- Types ---
@@ -342,8 +342,8 @@ export const useStore = create<AppState>()(
             exportData: async () => {
                 const { stack, backlog, history, settings } = get();
                 const data = JSON.stringify({ stack, backlog, history, settings }, null, 2);
-                const uri = FileSystem.documentDirectory + 'anchor_backup.json';
-                await FileSystem.writeAsStringAsync(uri, data);
+                const uri = documentDirectory + 'anchor_backup.json';
+                await writeAsStringAsync(uri, data);
                 await Sharing.shareAsync(uri);
             },
 
@@ -359,8 +359,8 @@ export const useStore = create<AppState>()(
                     return `"${t.text.replace(/"/g, '""')}","${created}","${completed}","${energy}","${focus}","${note}"`;
                 }).join('\n');
                 const csv = header + rows;
-                const uri = FileSystem.documentDirectory + 'anchor_history.csv';
-                await FileSystem.writeAsStringAsync(uri, csv);
+                const uri = documentDirectory + 'anchor_history.csv';
+                await writeAsStringAsync(uri, csv);
                 await Sharing.shareAsync(uri);
             },
 
@@ -448,8 +448,8 @@ export const useStore = create<AppState>()(
                 markdown += `\n*Exported from Anchor - Built for minds that work differently* 🎯`;
 
                 // Write and share
-                const uri = FileSystem.documentDirectory + filename;
-                await FileSystem.writeAsStringAsync(uri, markdown);
+                const uri = documentDirectory + filename;
+                await writeAsStringAsync(uri, markdown);
                 await Sharing.shareAsync(uri);
             },
 
