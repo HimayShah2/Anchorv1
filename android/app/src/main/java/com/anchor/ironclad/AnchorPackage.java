@@ -24,6 +24,7 @@ public class AnchorPackage implements ReactPackage {
         List<NativeModule> modules = new ArrayList<>();
         modules.add(new TimerModule(reactContext));
         modules.add(new WidgetModule(reactContext));
+        modules.add(new BrainWidgetModule(reactContext));
         modules.add(new DNDModule(reactContext));
         modules.add(new NowBarModule(reactContext));
         return modules;

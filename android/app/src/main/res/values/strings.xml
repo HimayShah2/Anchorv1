@@ -1,6 +1,7 @@
 <resources>
   <string name="app_name">Anchor</string>
-  <string name="widget_description">Shows your current task with quick actions</string>
+  <string name="widget_description">Current Anchor task</string>
+  <string name="brain_widget_description">Latest note from your Second Brain</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
   <string name="expo_splash_screen_status_bar_translucent" translatable="false">false</string>
 </resources>

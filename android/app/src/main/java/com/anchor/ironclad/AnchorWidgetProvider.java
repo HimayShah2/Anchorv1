@@ -27,14 +27,31 @@ public class AnchorWidgetProvider extends AppWidgetProvider {
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager, int appWidgetId) {
         // Get current task from SharedPreferences
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String currentTask = prefs.getString(PREF_CURRENT_TASK, "No active task");
-        long timeRemaining = prefs.getLong(PREF_TIME_REMAINING, 0);
+        // Get task data  
+        String taskText = prefs.getString(PREF_CURRENT_TASK, "No active task");
+        long endTime = prefs.getLong(PREF_TIME_REMAINING, 0);
         
         // Create RemoteViews
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_anchor);
         
         // Set task text
-        views.setTextViewText(R.id.widget_task_text, currentTask);
+        views.setTextViewText(R.id.widget_task_text, taskText);
+        
+        // Update progress bar
+        if (endTime > 0) {
+            long now = System.currentTimeMillis();
+            long remaining = endTime - now;
+            long totalDuration = prefs.getLong("totalDuration", 25 * 60 * 1000);
+            
+            if (remaining > 0) {
+                int progress = (int) ((remaining * 100) / totalDuration);
+                views.setProgressBar(R.id.widget_progress, 100, 100 - progress, false);
+            } else {
+                views.setProgressBar(R.id.widget_progress, 100, 100, false);
+            }
+        } else {
+            views.setProgressBar(R.id.widget_progress, 100, 0, false);
+        }
         
         // Set up click intents
         Intent openAppIntent = new Intent(context, MainActivity.class);

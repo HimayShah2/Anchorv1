@@ -25,6 +25,7 @@ public class TimerNotificationService extends Service {
     private Runnable updateRunnable;
     private long endTimeMillis;
     private String taskText;
+    private long durationMinutes;
     private NotificationManager notificationManager;
     
     @Override
@@ -43,7 +44,7 @@ public class TimerNotificationService extends Service {
         }
         
         taskText = intent.getStringExtra("taskText");
-        long durationMinutes = intent.getLongExtra("durationMinutes", 25);
+        durationMinutes = intent.getLongExtra("durationMinutes", 25);
         endTimeMillis = System.currentTimeMillis() + (durationMinutes * 60 * 1000);
         
         // Start foreground service with initial notification
@@ -110,7 +111,7 @@ public class TimerNotificationService extends Service {
         );
         
         // Calculate progress
-        long totalDuration = endTimeMillis - (endTimeMillis - (durationMinutes * 60 * 1000));
+        long totalDuration = durationMinutes * 60 * 1000;
         int progress = (int) ((remaining * 100) / totalDuration);
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
