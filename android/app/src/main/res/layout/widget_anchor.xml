@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/widget_background">
+    
+    <!-- Widget Header -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚓ ANCHOR"
+        android:textSize="10sp"
+        android:textColor="#52525b"
+        android:textStyle="bold"
+        android:letterSpacing="0.15"
+        android:layout_marginBottom="8dp" />
+    
+    <!-- Task Text -->
+    <TextView
+        android:id="@+id/widget_task_text"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:text="No active task"
+        android:textSize="14sp"
+        android:textColor="#ffffff"
+        android:maxLines="4"
+        android:ellipsize="end"
+        android:layout_marginBottom="8dp" />
+    
+    <!-- Action Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+        
+        <Button
+            android:id="@+id/widget_complete_btn"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="✓ Done"
+            android:textSize="12sp"
+            android:textColor="#000000"
+            android:backgroundTint="#4ADE80"
+            android:layout_marginEnd="4dp" />
+        
+        <Button
+            android:id="@+id/widget_defer_btn"
+            android:layout_width="0dp"
+            android:layout_height="36dp"
+            android:layout_weight="1"
+            android:text="Later"
+            android:textSize="12sp"
+            android:textColor="#000000"
+            android:backgroundTint="#38BDF8"
+            android:layout_marginStart="4dp" />
+    </LinearLayout>
+</LinearLayout>
