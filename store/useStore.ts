@@ -70,6 +70,10 @@ interface AppState {
     timerStart: number | null;
     pendingJournalTaskId: string | null;
     settings: Settings;
+    currentEnergy: number; // 1-5 spoon level
+    hyperfocusMode: boolean; // Blocks buttons for 15 min
+    hyperfocusStartTime: number | null;
+    undoStack: Array<{ action: string; data: any }>; // Last 5 actions
 
     // Stack Actions
     addTask: (text: string, isNow: boolean, deadline?: number, categories?: string[]) => void;
@@ -148,6 +152,10 @@ export const useStore = create<AppState>()(
             timerStart: null,
             pendingJournalTaskId: null,
             settings: DEFAULT_SETTINGS,
+            currentEnergy: 3, // Start at medium energy
+            hyperfocusMode: false,
+            hyperfocusStartTime: null,
+            undoStack: [],
 
             addTask: (text, isNow, deadline, categories = []) => {
                 doHaptic(get().settings.hapticStrength);

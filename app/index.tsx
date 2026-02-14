@@ -1,22 +1,74 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, PanResponder, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
 import { useStore } from '../store/useStore';
 import { VisualTimer } from '../components/VisualTimer';
 import { VoiceInput } from '../components/VoiceInput';
+import { EnergyTracker } from '../components/EnergyTracker';
+import { TaskBreakdown } from '../components/TaskBreakdown';
+import { startTimer, stopTimer } from '../utils/timerManager';
+import { updateWidget } from '../utils/widgetManager';
+import { startTransitionTimer, clearTransitionTimers, setHyperfocusMode } from '../utils/transitionTimer';
 import { format } from 'date-fns';
 
 export default function Home() {
-    const { stack, backlog, categories, addTask, completeTop, deferTop, promote } = useStore();
-    const [text, setText] = useState('');
+    const router = useRouter();
+    const { stack, backlog, addTask, completeTop, deferTop, settings, timerStart, currentEnergy, hyperfocusMode, hyperfocusStartTime } = useStore();
+    const [input, setInput] = useState('');
+    const [showEnergyTracker, setShowEnergyTracker] = useState(false);
+    const [showTaskBreakdown, setShowTaskBreakdown] = useState(false);
+    const [breakdownTask, setBreakdownTask] = useState<string>('');
     const [mode, setMode] = useState<'NOW' | 'LATER'>('NOW');
     const [deadline, setDeadline] = useState<Date | undefined>();
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const anchor = stack[0];
+    const topTask = stack[0];
+
+    // Check if hyperfocus mode is active (within 15 minutes)
+    const isHyperfocusActive = hyperfocusMode && hyperfocusStartTime &&
+        (Date.now() - hyperfocusStartTime < 15 * 60 * 1000);
+
+    const handleStartTask = () => {
+        if (topTask) {
+            const duration = settings.timerMinutes;
+            startTimer(topTask.text, duration);
+
+            // Start transition timers (5-min warning, winding down)
+            startTransitionTimer(duration, topTask.text);
+
+            // Enable hyperfocus if setting is on
+            if (settings.autoDND) {
+                useStore.setState({
+                    hyperfocusMode: true,
+                    hyperfocusStartTime: Date.now()
+                });
+                setHyperfocusMode(true, topTask.text);
+            }
+        }
+    };
+
+    const handleStopTask = () => {
+        stopTimer();
+        clearTransitionTimers();
+        useStore.setState({ hyperfocusMode: false, hyperfocusStartTime: null });
+    };
+
+    const handleEnergySelect = (energy: number) => {
+        useStore.setState({ currentEnergy: energy });
+    };
+
+    const handleTaskBreakdown = (task: string) => {
+        setBreakdownTask(task);
+        setShowTaskBreakdown(true);
+    };
+
+    const handleCreateSteps = (steps: string[]) => {
+        steps.forEach(step => addTask(step, false));
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    };
 
     // Swipe gesture for complete/defer
     const pan = useRef(new Animated.Value(0)).current;
