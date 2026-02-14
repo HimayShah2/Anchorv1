@@ -7,60 +7,21 @@ import * as Haptics from 'expo-haptics';
 import { useStore } from '../store/useStore';
 import { VisualTimer } from '../components/VisualTimer';
 import { VoiceInput } from '../components/VoiceInput';
+import { EnergyTracker } from '../components/EnergyTracker';
+import { TaskBreakdown } from '../components/TaskBreakdown';
 import { format } from 'date-fns';
 
 export default function Home() {
-    const { stack, backlog, categories, addTask, completeTop, deferTop, promote } = useStore();
+    const { stack, backlog, categories, addTask, completeTop, deferTop, promote, currentEnergy } = useStore();
     const [text, setText] = useState('');
     const [mode, setMode] = useState<'NOW' | 'LATER'>('NOW');
     const [deadline, setDeadline] = useState<Date | undefined>();
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-    const topTask = stack[0];
-
-    // Check if hyperfocus mode is active (within 15 minutes)
-    const isHyperfocusActive = hyperfocusMode && hyperfocusStartTime &&
-        (Date.now() - hyperfocusStartTime < 15 * 60 * 1000);
-
-    const handleStartTask = () => {
-        if (topTask) {
-            const duration = settings.timerMinutes;
-            startTimer(topTask.text, duration);
-
-            // Start transition timers (5-min warning, winding down)
-            startTransitionTimer(duration, topTask.text);
-
-            // Enable hyperfocus if setting is on
-            if (settings.autoDND) {
-                useStore.setState({
-                    hyperfocusMode: true,
-                    hyperfocusStartTime: Date.now()
-                });
-                setHyperfocusMode(true, topTask.text);
-            }
-        }
-    };
-
-    const handleStopTask = () => {
-        stopTimer();
-        clearTransitionTimers();
-        useStore.setState({ hyperfocusMode: false, hyperfocusStartTime: null });
-    };
-
-    const handleEnergySelect = (energy: number) => {
-        useStore.setState({ currentEnergy: energy });
-    };
-
-    const handleTaskBreakdown = (task: string) => {
-        setBreakdownTask(task);
-        setShowTaskBreakdown(true);
-    };
-
-    const handleCreateSteps = (steps: string[]) => {
-        steps.forEach(step => addTask(step, false));
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    };
-
+    const [showEnergyTracker, setShowEnergyTracker] = useState(false);
+    const [showTaskBreakdown, setShowTaskBreakdown] = useState(false);
+    const [breakdownTaskText, setBreakdownTaskText] = useState('');
+    const anchor = stack[0];
     // Swipe gesture for complete/defer
     const pan = useRef(new Animated.Value(0)).current;
     const panResponder = useRef(
@@ -415,6 +376,28 @@ export default function Home() {
                     />
                 )}
             </KeyboardAvoidingView>
+
+            {/* Energy Tracker Modal */}
+            <EnergyTracker
+                visible={showEnergyTracker}
+                onClose={() => setShowEnergyTracker(false)}
+                onSelect={(energy) => {
+                    useStore.setState({ currentEnergy: energy });
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                }}
+                currentEnergy={currentEnergy}
+            />
+
+            {/* Task Breakdown Modal */}
+            <TaskBreakdown
+                visible={showTaskBreakdown}
+                onClose={() => setShowTaskBreakdown(false)}
+                taskText={breakdownTaskText}
+                onBreakdown={(steps) => {
+                    steps.forEach(step => addTask(step, false));
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                }}
+            />
         </SafeAreaView>
     );
 }

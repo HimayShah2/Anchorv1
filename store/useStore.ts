@@ -54,6 +54,7 @@ export interface Settings {
     theme: 'light' | 'dark';
     calendarSync: boolean; // Sync tasks with device calendar
     autoDND: boolean; // Auto-enable Do Not Disturb when task starts
+    hyperfocusProtection: boolean; // Lock buttons for 15 minutes during focus
     fontSize: 'small' | 'medium' | 'large' | 'xlarge'; // Accessibility font size
     highContrast: boolean; // High contrast mode for accessibility
     reduceAnimations: boolean; // Reduce animations for accessibility
@@ -123,6 +124,7 @@ const DEFAULT_SETTINGS: Settings = {
     dailyReminderHour: 9,
     calendarSync: false,
     autoDND: false,
+    hyperfocusProtection: false,
     fontSize: 'medium',
     highContrast: false,
     reduceAnimations: false,
