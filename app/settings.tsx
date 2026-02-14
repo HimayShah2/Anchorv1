@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, Link } from 'expo-router';
 import { useStore } from '../store/useStore';
 import type { Settings } from '../store/useStore';
 
@@ -15,6 +15,7 @@ const HAPTIC_OPTIONS: { label: string; value: Settings['hapticStrength'] }[] = [
 
 export default function SettingsScreen() {
     const { settings, updateSettings, panic } = useStore();
+    const { theme } = settings;
 
     const confirmReset = () => {
         Alert.alert(
@@ -92,31 +93,51 @@ export default function SettingsScreen() {
                     </View>
                 </Pressable>
 
+                {/* Appearance */}
+                <Text className="text-white text-xl font-bold mb-4 mt-6">Appearance</Text>
+
+                {/* Manage Categories */}
+                <Link href="/categories" asChild>
+                    <Pressable
+                        className="bg-surface p-4 rounded-2xl border border-dim mb-3"
+                        accessibilityLabel="Manage categories"
+                        accessibilityRole="button"
+                    >
+                        <View className="flex-row items-center justify-between">
+                            <View>
+                                <Text className="text-white text-base font-bold">🏷️ Manage Categories</Text>
+                                <Text className="text-gray-500 text-xs">Organize tasks, notes & journals</Text>
+                            </View>
+                            <Text className="text-gray-600">→</Text>
+                        </View>
+                    </Pressable>
+                </Link>
+
                 {/* Theme */}
-                <Text className="text-gray-500 font-bold uppercase text-xs mb-2 mt-6">Appearance</Text>
-                <View className="flex-row gap-2 mb-6">
-                    <Pressable
-                        onPress={() => updateSettings({ theme: 'dark' })}
-                        className={`flex-1 py-3 rounded-xl items-center ${settings.theme === 'dark' ? 'bg-primary' : 'bg-surface border border-dim'}`}
-                        accessibilityLabel="Set theme to dark"
-                        accessibilityRole="button"
-                        style={{ minHeight: 48 }}
-                    >
-                        <Text className={`font-bold ${settings.theme === 'dark' ? 'text-black' : 'text-gray-400'}`}>
-                            🌙 Dark
-                        </Text>
-                    </Pressable>
-                    <Pressable
-                        onPress={() => updateSettings({ theme: 'light' })}
-                        className={`flex-1 py-3 rounded-xl items-center ${settings.theme === 'light' ? 'bg-focus' : 'bg-surface border border-dim'}`}
-                        accessibilityLabel="Set theme to light"
-                        accessibilityRole="button"
-                        style={{ minHeight: 48 }}
-                    >
-                        <Text className={`font-bold ${settings.theme === 'light' ? 'text-black' : 'text-gray-400'}`}>
-                            ☀️ Light
-                        </Text>
-                    </Pressable>
+                <View className="bg-surface p-4 rounded-2xl border border-dim mb-3">
+                    <Text className="text-white text-base font-bold mb-3">Theme</Text>
+                    <View className="flex-row gap-2">
+                        <Pressable
+                            onPress={() => updateSettings({ theme: 'dark' })}
+                            className={`flex-1 py-3 rounded-xl ${theme === 'dark' ? 'bg-primary' : 'bg-dim'}`}
+                            accessibilityLabel="Dark theme"
+                            accessibilityRole="button"
+                        >
+                            <Text className={`text-center font-bold ${theme === 'dark' ? 'text-black' : 'text-gray-400'}`}>
+                                🌙 Dark
+                            </Text>
+                        </Pressable>
+                        <Pressable
+                            onPress={() => updateSettings({ theme: 'light' })}
+                            className={`flex-1 py-3 rounded-xl ${theme === 'light' ? 'bg-yellow-400' : 'bg-dim'}`}
+                            accessibilityLabel="Light theme"
+                            accessibilityRole="button"
+                        >
+                            <Text className={`text-center font-bold ${theme === 'light' ? 'text-black' : 'text-gray-400'}`}>
+                                ☀️ Light
+                            </Text>
+                        </Pressable>
+                    </View>
                 </View>
 
                 {/* Data Management */}

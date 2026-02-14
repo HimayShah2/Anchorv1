@@ -2,21 +2,36 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { VisualTimer } from '../components/VisualTimer';
 import { VoiceInput } from '../components/VoiceInput';
+import { format } from 'date-fns';
 
 export default function Home() {
-    const { stack, backlog, addTask, completeTop, deferTop, promote } = useStore();
+    const { stack, backlog, categories, addTask, completeTop, deferTop, promote } = useStore();
     const [text, setText] = useState('');
     const [mode, setMode] = useState<'NOW' | 'LATER'>('NOW');
+    const [deadline, setDeadline] = useState<Date | undefined>();
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const anchor = stack[0];
 
     const submit = () => {
         if (!text.trim()) return;
-        addTask(text, mode === 'NOW');
+        addTask(text, mode === 'NOW', deadline?.getTime(), selectedCategories);
         setText('');
+        setDeadline(undefined);
+        setSelectedCategories([]);
     };
+
+    const toggleCategory = (catId: string) => {
+        setSelectedCategories(prev =>
+            prev.includes(catId) ? prev.filter(id => id !== catId) : [...prev, catId]
+        );
+    };
+
+    const getCategoryById = (id: string) => categories.find(c => c.id === id);
 
     return (
         <SafeAreaView className="flex-1 px-6 py-4 justify-between">
@@ -164,7 +179,65 @@ export default function Home() {
                     >
                         <Text className={`font-bold text-xs ${mode === 'LATER' ? 'text-white' : 'text-gray-500'}`}>LATER</Text>
                     </Pressable>
+
+                    {/* Deadline Button */}
+                    <Pressable
+                        onPress={() => setShowDatePicker(true)}
+                        className={`px-3 py-2 rounded-full ${deadline ? 'bg-panic' : 'bg-surface border border-dim'}`}
+                        accessibilityLabel="Set deadline"
+                        accessibilityRole="button"
+                        style={{ minHeight: 40 }}
+                    >
+                        <Text className={`font-bold text-xs ${deadline ? 'text-white' : 'text-gray-500'}`}>
+                            {deadline ? '⏰ ' + format(deadline, 'MMM d') : '📅'}
+                        </Text>
+                    </Pressable>
+
+                    {deadline && (
+                        <Pressable
+                            onPress={() => setDeadline(undefined)}
+                            className="px-2 py-2 rounded-full bg-dim"
+                            accessibilityLabel="Clear deadline"
+                            accessibilityRole="button"
+                        >
+                            <Text className="text-gray-400 text-xs">✕</Text>
+                        </Pressable>
+                    )}
                 </View>
+
+                {/* Category Chips */}
+                {categories.length > 0 && (
+                    <ScrollView
+                        horizontal
+                        showsHorizontalScrollIndicator={false}
+                        className="mb-2"
+                    >
+                        <View className="flex-row gap-2">
+                            {categories.map(cat => {
+                                const isSelected = selectedCategories.includes(cat.id);
+                                return (
+                                    <Pressable
+                                        key={cat.id}
+                                        onPress={() => toggleCategory(cat.id)}
+                                        className="px-3 py-1.5 rounded-full"
+                                        style={{
+                                            backgroundColor: isSelected ? cat.color : cat.color + '22',
+                                            borderWidth: 1,
+                                            borderColor: cat.color,
+                                        }}
+                                    >
+                                        <Text
+                                            className="text-xs font-bold"
+                                            style={{ color: isSelected ? '#000' : cat.color }}
+                                        >
+                                            {cat.icon} {cat.name}
+                                        </Text>
+                                    </Pressable>
+                                );
+                            })}
+                        </View>
+                    </ScrollView>
+                )}
 
                 <View className="bg-surface rounded-2xl p-2 flex-row items-center border border-dim">
                     <TextInput
@@ -186,6 +259,22 @@ export default function Home() {
                         <Text className="text-white font-bold">↑</Text>
                     </Pressable>
                 </View>
+
+                {/* DateTimePicker Modal */}
+                {showDatePicker && (
+                    <DateTimePicker
+                        value={deadline || new Date()}
+                        mode="date"
+                        display="default"
+                        minimumDate={new Date()}
+                        onChange={(event, selectedDate) => {
+                            setShowDatePicker(false);
+                            if (selectedDate) {
+                                setDeadline(selectedDate);
+                            }
+                        }}
+                    />
+                )}
             </KeyboardAvoidingView>
         </SafeAreaView>
     );
