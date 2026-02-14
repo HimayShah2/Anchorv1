@@ -5,14 +5,7 @@ node_modules/
 
 
 
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
+
 
 # Metro
 .metro-health-check*
