@@ -1,26 +1,17 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, PanResponder, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Link, useRouter } from 'expo-router';
+import { Link } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import * as Haptics from 'expo-haptics';
 import { useStore } from '../store/useStore';
 import { VisualTimer } from '../components/VisualTimer';
 import { VoiceInput } from '../components/VoiceInput';
-import { EnergyTracker } from '../components/EnergyTracker';
-import { TaskBreakdown } from '../components/TaskBreakdown';
-import { startTimer, stopTimer } from '../utils/timerManager';
-import { updateWidget } from '../utils/widgetManager';
-import { startTransitionTimer, clearTransitionTimers, setHyperfocusMode } from '../utils/transitionTimer';
 import { format } from 'date-fns';
 
 export default function Home() {
-    const router = useRouter();
-    const { stack, backlog, addTask, completeTop, deferTop, settings, timerStart, currentEnergy, hyperfocusMode, hyperfocusStartTime } = useStore();
-    const [input, setInput] = useState('');
-    const [showEnergyTracker, setShowEnergyTracker] = useState(false);
-    const [showTaskBreakdown, setShowTaskBreakdown] = useState(false);
-    const [breakdownTask, setBreakdownTask] = useState<string>('');
+    const { stack, backlog, categories, addTask, completeTop, deferTop, promote } = useStore();
+    const [text, setText] = useState('');
     const [mode, setMode] = useState<'NOW' | 'LATER'>('NOW');
     const [deadline, setDeadline] = useState<Date | undefined>();
     const [showDatePicker, setShowDatePicker] = useState(false);
