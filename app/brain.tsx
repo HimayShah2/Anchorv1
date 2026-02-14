@@ -11,6 +11,15 @@ export default function Brain() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [showTemplates, setShowTemplates] = useState(false);
+
+    // Quick templates
+    const templates = [
+        { name: 'Idea 💡', content: '## Core Idea\n\n## Why This Matters\n\n## Next Steps\n' },
+        { name: 'Meeting 📝', content: '## Attendees\n\n## Discussion\n\n## Action Items\n- [ ] \n' },
+        { name: 'Daily 📅', content: '## Today\'s Focus\n\n## Wins\n\n## Challenges\n\n## Tomorrow\n' },
+        { name: 'Quick 🚀', content: '' },
+    ];
 
     // Filter notes by search
     const filteredNotes = useMemo(() => {
@@ -77,15 +86,21 @@ export default function Brain() {
             </View>
 
             {/* Search */}
-            <View className="bg-surface rounded-2xl px-4 py-3 border border-dim mb-4">
+            <View className="bg-surface rounded-2xl px-4 py-3 border border-dim mb-4 flex-row items-center">
+                <Text className="text-gray-500 text-lg mr-2">🔍</Text>
                 <TextInput
                     value={search}
                     onChangeText={setSearch}
-                    className="text-white text-base"
-                    placeholder="Search notes..."
+                    className="text-white text-base flex-1"
+                    placeholder="Search notes, #tags..."
                     placeholderTextColor="#52525b"
                     accessibilityLabel="Search notes"
                 />
+                {search ? (
+                    <Pressable onPress={() => setSearch('')}>
+                        <Text className="text-gray-500 text-lg">✕</Text>
+                    </Pressable>
+                ) : null}
             </View>
 
             {/* Notes List */}
@@ -150,7 +165,33 @@ export default function Brain() {
             {/* Quick Add Note */}
             <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
                 <View className="bg-surface rounded-2xl p-4 border border-dim">
-                    <Text className="text-focus text-xs font-bold uppercase mb-2">Quick Capture</Text>
+                    <View className="flex-row items-center justify-between mb-2">
+                        <Text className="text-focus text-xs font-bold uppercase">Quick Capture</Text>
+                        <Pressable
+                            onPress={() => setShowTemplates(!showTemplates)}
+                            className="px-2 py-1 rounded-lg bg-dim"
+                        >
+                            <Text className="text-primary text-xs font-bold">📋 Templates</Text>
+                        </Pressable>
+                    </View>
+
+                    {/* Templates */}
+                    {showTemplates && (
+                        <View className="flex-row flex-wrap gap-2 mb-3">
+                            {templates.map(template => (
+                                <Pressable
+                                    key={template.name}
+                                    onPress={() => {
+                                        setContent(template.content);
+                                        setShowTemplates(false);
+                                    }}
+                                    className="px-3 py-1.5 rounded-full bg-dim border border-primary"
+                                >
+                                    <Text className="text-primary text-xs font-bold">{template.name}</Text>
+                                </Pressable>
+                            ))}
+                        </View>
+                    )}
 
                     <TextInput
                         value={title}

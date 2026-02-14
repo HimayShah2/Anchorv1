@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, Pressable, ScrollView, KeyboardAvoidingView, Platform, PanResponder, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Link } from 'expo-router';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Haptics from 'expo-haptics';
 import { useStore } from '../store/useStore';
 import { VisualTimer } from '../components/VisualTimer';
 import { VoiceInput } from '../components/VoiceInput';
@@ -16,6 +17,29 @@ export default function Home() {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     const anchor = stack[0];
+
+    // Swipe gesture for complete/defer
+    const pan = useRef(new Animated.Value(0)).current;
+    const panResponder = useRef(
+        PanResponder.create({
+            onMoveShouldSetPanResponder: (_, gesture) => Math.abs(gesture.dx) > 10,
+            onPanResponderMove: (_, gesture) => {
+                pan.setValue(gesture.dx);
+            },
+            onPanResponderRelease: (_, gesture) => {
+                if (gesture.dx > 100) {
+                    // Swipe right = Complete
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    completeTop();
+                } else if (gesture.dx < -100) {
+                    // Swipe left = Defer  
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                    deferTop();
+                }
+                Animated.spring(pan, { toValue: 0, useNativeDriver: true }).start();
+            },
+        })
+    ).current;
 
     const submit = () => {
         if (!text.trim()) return;
@@ -93,8 +117,15 @@ export default function Home() {
             {/* THE ANCHOR CARD */}
             <View className="flex-1 justify-center py-8">
                 {anchor ? (
-                    <View className="bg-surface p-6 rounded-3xl border border-dim">
-                        <Text className="text-focus text-xs font-bold uppercase mb-4">Current Focus</Text>
+                    <Animated.View
+                        {...panResponder.panHandlers}
+                        style={{ transform: [{ translateX: pan }] }}
+                        className="bg-surface p-6 rounded-3xl border border-dim"
+                    >
+                        <View className="flex-row items-center justify-between mb-4">
+                            <Text className="text-focus text-xs font-bold uppercase">Current Focus</Text>
+                            <Text className="text-gray-600 text-xs">👈 Defer | Complete 👉</Text>
+                        </View>
                         <Text
                             className="text-white text-3xl font-bold leading-tight mb-4"
                             accessibilityRole="header"
@@ -142,7 +173,7 @@ export default function Home() {
                                 accessibilityRole="button"
                                 style={{ minHeight: 48 }}
                             >
-                                <Text className="text-black font-bold text-lg">DONE ✓</Text>
+                                <Text className="text-black font-bold text-lg">COMPLETE ✓</Text>
                             </Pressable>
                             <Pressable
                                 onPress={deferTop}
@@ -162,7 +193,7 @@ export default function Home() {
                                 +{stack.length - 1} more in stack
                             </Text>
                         )}
-                    </View>
+                    </Animated.View>
                 ) : (
                     <View className="items-center">
                         <Text className="text-white text-xl font-bold mb-1">Ready to Anchor.</Text>

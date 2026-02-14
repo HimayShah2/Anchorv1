@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, Link } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useStore } from '../store/useStore';
 import type { Settings } from '../store/useStore';
 
@@ -46,7 +47,10 @@ export default function SettingsScreen() {
                     {TIMER_PRESETS.map(mins => (
                         <Pressable
                             key={mins}
-                            onPress={() => updateSettings({ timerMinutes: mins })}
+                            onPress={() => {
+                                Haptics.selectionAsync();
+                                updateSettings({ timerMinutes: mins });
+                            }}
                             className={`flex-1 py-3 rounded-xl items-center ${settings.timerMinutes === mins ? 'bg-focus' : 'bg-surface border border-dim'}`}
                             accessibilityLabel={`Set timer to ${mins} minutes`}
                             accessibilityRole="button"
@@ -85,7 +89,10 @@ export default function SettingsScreen() {
                     {HAPTIC_OPTIONS.map(opt => (
                         <Pressable
                             key={opt.value}
-                            onPress={() => updateSettings({ hapticStrength: opt.value })}
+                            onPress={() => {
+                                Haptics.selectionAsync();
+                                updateSettings({ hapticStrength: opt.value });
+                            }}
                             className={`flex-1 py-3 rounded-xl items-center ${settings.hapticStrength === opt.value ? 'bg-primary' : 'bg-surface border border-dim'}`}
                             accessibilityLabel={`Set haptic feedback to ${opt.label}`}
                             accessibilityRole="button"

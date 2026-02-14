@@ -3,12 +3,15 @@ import { Platform } from 'react-native';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        priority: Notifications.AndroidNotificationPriority.HIGH,
-    }),
+    handleNotification: async () => {
+        return {
+            shouldShowAlert: true,
+            shouldPlaySound: true,
+            shouldSetBadge: false,
+            shouldShowBanner: true,
+            shouldShowList: true,
+        };
+    },
 });
 
 export async function requestNotificationPermissions(): Promise<boolean> {

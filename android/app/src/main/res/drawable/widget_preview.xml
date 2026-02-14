@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="120dp"
+    android:viewportWidth="200"
+    android:viewportHeight="120">
+    <!-- Background with rounded corners -->
+    <path
+        android:fillColor="#121212"
+        android:pathData="M10,0 L190,0 Q200,0 200,10 L200,110 Q200,120 190,120 L10,120 Q0,120 0,110 L0,10 Q0,0 10,0 Z"/>
+    <!-- Anchor icon -->
+    <path
+        android:fillColor="#4ADE80"
+        android:pathData="M100,30 L100,90 M85,75 Q85,90 100,90 Q115,90 115,75 M90,40 Q90,30 100,30 Q110,30 110,40 Q110,50 100,50 Q90,50 90,40"/>
+    <!-- Task indicator circle -->
+    <path
+        android:fillColor="#4ADE80"
+        android:pathData="M160,50 Q160,43 165,43 Q170,43 170,50 Q170,57 165,57 Q160,57 160,50"/>
+</vector>

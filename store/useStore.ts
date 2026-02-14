@@ -47,6 +47,7 @@ export interface Task {
 
 export interface Settings {
     timerMinutes: number;
+    timerDuration: number; // Custom timer duration
     hapticStrength: 'off' | 'light' | 'medium' | 'heavy';
     notifyOnComplete: boolean;
     dailyReminderHour: number | null;
@@ -111,10 +112,11 @@ interface AppState {
 
 const DEFAULT_SETTINGS: Settings = {
     timerMinutes: 25,
+    timerDuration: 25,
+    theme: 'dark',
     hapticStrength: 'medium',
     notifyOnComplete: true,
     dailyReminderHour: 9,
-    theme: 'dark',
     calendarSync: false,
     autoDND: false,
     fontSize: 'medium',
@@ -166,7 +168,20 @@ export const useStore = create<AppState>()(
                     });
                 }
 
+                // Start timer notification if this is an anchor task
                 if (isNow) {
+                    const timerDuration = get().settings.timerDuration || 25;
+                    import('../utils/timerNotification').then(({ startTimerNotification }) => {
+                        startTimerNotification(text, timerDuration);
+                    });
+                    // Update widget with new task
+                    import('../utils/widgetManager').then(({ updateWidget }) => {
+                        updateWidget(text, timerDuration * 60 * 1000);
+                    });
+                    // Update Now Bar (One UI 8)
+                    import('../utils/nowBarManager').then(({ updateNowBar }) => {
+                        updateNowBar(text, timerDuration * 60 * 1000);
+                    });
                     set(s => ({ stack: [task, ...s.stack], timerStart: Date.now() }));
                 } else {
                     set(s => ({ backlog: [...s.backlog, task] }));
@@ -187,12 +202,34 @@ export const useStore = create<AppState>()(
                     });
                 }
 
+                // Stop timer notification
+                import('../utils/timerNotification').then(({ stopTimerNotification }) => {
+                    stopTimerNotification();
+                });
+
                 set({
                     stack: rest,
                     history: [completed, ...get().history],
                     timerStart: rest.length > 0 ? Date.now() : null,
                     pendingJournalTaskId: completed.id,
                 });
+
+                // Start new timer if there's another task
+                if (rest.length > 0) {
+                    const timerDuration = get().settings.timerDuration || 25;
+                    import('../utils/timerNotification').then(({ startTimerNotification }) => {
+                        startTimerNotification(rest[0].text, timerDuration);
+                    });
+                    // Update widget with next task
+                    import('../utils/widgetManager').then(({ updateWidget }) => {
+                        updateWidget(rest[0].text, timerDuration * 60 * 1000);
+                    });
+                } else {
+                    // Clear widget if no more tasks
+                    import('../utils/widgetManager').then(({ clearWidget }) => {
+                        clearWidget();
+                    });
+                }
             },
 
             deferTop: () => {
@@ -207,11 +244,33 @@ export const useStore = create<AppState>()(
                     });
                 }
 
+                // Stop timer notification
+                import('../utils/timerNotification').then(({ stopTimerNotification }) => {
+                    stopTimerNotification();
+                });
+
                 set({
                     stack: rest,
                     backlog: [...backlog, { ...deferred, type: 'LATER' }],
                     timerStart: rest.length > 0 ? Date.now() : null,
                 });
+
+                // Start new timer if there's another task
+                if (rest.length > 0) {
+                    const timerDuration = get().settings.timerDuration || 25;
+                    import('../utils/timerNotification').then(({ startTimerNotification }) => {
+                        startTimerNotification(rest[0].text, timerDuration);
+                    });
+                    // Update widget with next task
+                    import('../utils/widgetManager').then(({ updateWidget }) => {
+                        updateWidget(rest[0].text, timerDuration * 60 * 1000);
+                    });
+                } else {
+                    // Clear widget if no more tasks
+                    import('../utils/widgetManager').then(({ clearWidget }) => {
+                        clearWidget();
+                    });
+                }
             },
 
             promote: (id) => {

@@ -62,11 +62,11 @@ public class TimerNotificationService extends Service {
                 long remaining = endTimeMillis - System.currentTimeMillis();
                 
                 if (remaining <= 0) {
-                    // Timer complete
+                    // Timer complete - show alert with sound/vibration
                     showCompletionNotification();
                     stopSelf();
                 } else {
-                    // Update notification
+                    // Update notification every second with progress
                     notificationManager.notify(NOTIFICATION_ID, buildNotification());
                     // Schedule next update in 1 second
                     updateHandler.postDelayed(this, 1000);
@@ -109,17 +109,24 @@ public class TimerNotificationService extends Service {
             PendingIntent.FLAG_IMMUTABLE
         );
         
+        // Calculate progress
+        long totalDuration = endTimeMillis - (endTimeMillis - (durationMinutes * 60 * 1000));
+        int progress = (int) ((remaining * 100) / totalDuration);
+
         return new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("⏱️ " + (taskText != null ? taskText : "Task in Progress"))
                 .setContentText(timeText + " remaining")
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(android.R.drawable.ic_menu_recent_history)
                 .setOngoing(true)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setPriority(NotificationCompat.PRIORITY_MIN)  // LOWEST priority = silent
                 .setContentIntent(pendingIntent)
-                .addAction(R.drawable.ic_check, "Complete", completePendingIntent)
-                .addAction(R.drawable.ic_defer, "Defer", deferPendingIntent)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "Complete", completePendingIntent)
+                .addAction(android.R.drawable.ic_menu_revert, "Defer", deferPendingIntent)
                 .setStyle(new NotificationCompat.BigTextStyle()
                     .bigText((taskText != null ? taskText : "Task in Progress") + "\n" + timeText + " remaining"))
+                .setProgress(100, progress, false)  // Progress bar
+                .setSound(null)  // Silent
+                .setVibrate(null)  // No vibration until end
                 .build();
     }
     
@@ -135,10 +142,12 @@ public class TimerNotificationService extends Service {
         Notification completionNotif = new NotificationCompat.Builder(this, CHANNEL_ID)
                 .setContentTitle("✅ Task Time Complete!")
                 .setContentText(taskText != null ? taskText : "Well done!")
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(android.R.drawable.ic_menu_recent_history)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
+                .setSound(android.provider.Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setVibrate(new long[]{0, 500, 200, 500})
                 .build();
         
         notificationManager.notify(NOTIFICATION_ID + 1, completionNotif);

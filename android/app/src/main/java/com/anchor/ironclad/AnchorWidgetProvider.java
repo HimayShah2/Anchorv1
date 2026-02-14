@@ -13,8 +13,9 @@ import android.widget.RemoteViews;
  */
 public class AnchorWidgetProvider extends AppWidgetProvider {
     
-    private static final String PREFS_NAME = "anchor_widget_prefs";
-    private static final String PREF_CURRENT_TASK = "current_task";
+    private static final String PREFS_NAME = "AnchorWidgetPrefs";
+    private static final String PREF_CURRENT_TASK = "currentTask";
+    private static final String PREF_TIME_REMAINING = "timeRemaining";
     
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
@@ -27,6 +28,7 @@ public class AnchorWidgetProvider extends AppWidgetProvider {
         // Get current task from SharedPreferences
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String currentTask = prefs.getString(PREF_CURRENT_TASK, "No active task");
+        long timeRemaining = prefs.getLong(PREF_TIME_REMAINING, 0);
         
         // Create RemoteViews
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_anchor);
