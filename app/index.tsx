@@ -27,6 +27,24 @@ export default function Home() {
                     <Text className="text-white text-3xl font-bold">{backlog.length}</Text>
                 </View>
                 <View className="flex-row gap-2">
+                    <Link href="/brain" asChild>
+                        <Pressable
+                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            accessibilityLabel="View brain notes"
+                            accessibilityRole="button"
+                        >
+                            <Text className="text-primary font-bold text-xs">🧠</Text>
+                        </Pressable>
+                    </Link>
+                    <Link href="/history" asChild>
+                        <Pressable
+                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            accessibilityLabel="View history"
+                            accessibilityRole="button"
+                        >
+                            <Text className="text-primary font-bold text-xs">📜</Text>
+                        </Pressable>
+                    </Link>
                     <Link href="/backlog" asChild>
                         <Pressable
                             className="bg-surface px-3 py-2 rounded-full border border-dim"

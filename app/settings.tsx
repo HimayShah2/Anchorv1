@@ -92,6 +92,33 @@ export default function SettingsScreen() {
                     </View>
                 </Pressable>
 
+                {/* Theme */}
+                <Text className="text-gray-500 font-bold uppercase text-xs mb-2 mt-6">Appearance</Text>
+                <View className="flex-row gap-2 mb-6">
+                    <Pressable
+                        onPress={() => updateSettings({ theme: 'dark' })}
+                        className={`flex-1 py-3 rounded-xl items-center ${settings.theme === 'dark' ? 'bg-primary' : 'bg-surface border border-dim'}`}
+                        accessibilityLabel="Set theme to dark"
+                        accessibilityRole="button"
+                        style={{ minHeight: 48 }}
+                    >
+                        <Text className={`font-bold ${settings.theme === 'dark' ? 'text-black' : 'text-gray-400'}`}>
+                            🌙 Dark
+                        </Text>
+                    </Pressable>
+                    <Pressable
+                        onPress={() => updateSettings({ theme: 'light' })}
+                        className={`flex-1 py-3 rounded-xl items-center ${settings.theme === 'light' ? 'bg-focus' : 'bg-surface border border-dim'}`}
+                        accessibilityLabel="Set theme to light"
+                        accessibilityRole="button"
+                        style={{ minHeight: 48 }}
+                    >
+                        <Text className={`font-bold ${settings.theme === 'light' ? 'text-black' : 'text-gray-400'}`}>
+                            ☀️ Light
+                        </Text>
+                    </Pressable>
+                </View>
+
                 {/* Data Management */}
                 <Text className="text-gray-500 font-bold uppercase text-xs mb-2">Data</Text>
                 <Pressable
@@ -111,6 +138,16 @@ export default function SettingsScreen() {
                     style={{ minHeight: 48 }}
                 >
                     <Text className="text-white font-bold text-center">📄 Export CSV</Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => useStore.getState().exportMarkdown()}
+                    className="bg-primary/20 border border-primary p-4 rounded-xl mb-2"
+                    accessibilityLabel="Export as Obsidian Markdown"
+                    accessibilityRole="button"
+                    style={{ minHeight: 48 }}
+                >
+                    <Text className="text-primary font-bold text-center">📝 Export Markdown (Obsidian)</Text>
+                    <Text className="text-primary/70 text-xs text-center mt-1">Daily notes with tags & journal entries</Text>
                 </Pressable>
 
                 {/* Danger Zone */}

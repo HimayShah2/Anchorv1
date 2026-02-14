@@ -1,30 +1,51 @@
 import React, { useState, useCallback } from 'react';
 import { View, Text, Pressable } from 'react-native';
-import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from '@jamsch/expo-speech-recognition';
 
 interface Props {
     onResult: (text: string) => void;
 }
 
+// Check if native module is available
+let ExpoSpeechRecognitionModule: any;
+let useSpeechRecognitionEvent: any;
+let isVoiceAvailable = false;
+
+try {
+    const speechModule = require('@jamsch/expo-speech-recognition');
+    ExpoSpeechRecognitionModule = speechModule.ExpoSpeechRecognitionModule;
+    useSpeechRecognitionEvent = speechModule.useSpeechRecognitionEvent;
+    isVoiceAvailable = true;
+} catch (e) {
+    // Native module not available (Expo Go) - voice input disabled
+    isVoiceAvailable = false;
+}
+
 export const VoiceInput = ({ onResult }: Props) => {
     const [listening, setListening] = useState(false);
 
-    useSpeechRecognitionEvent('result', (event) => {
-        const transcript = event.results[0]?.transcript;
-        if (transcript) {
-            onResult(transcript);
-        }
-    });
+    // Only use hooks if module is available
+    if (isVoiceAvailable && useSpeechRecognitionEvent) {
+        useSpeechRecognitionEvent('result', (event: any) => {
+            const transcript = event.results[0]?.transcript;
+            if (transcript) {
+                onResult(transcript);
+            }
+        });
 
-    useSpeechRecognitionEvent('end', () => {
-        setListening(false);
-    });
+        useSpeechRecognitionEvent('end', () => {
+            setListening(false);
+        });
 
-    useSpeechRecognitionEvent('error', () => {
-        setListening(false);
-    });
+        useSpeechRecognitionEvent('error', () => {
+            setListening(false);
+        });
+    }
 
     const toggle = useCallback(async () => {
+        if (!isVoiceAvailable) {
+            return; // Silently fail in Expo Go
+        }
+
         if (listening) {
             ExpoSpeechRecognitionModule.stop();
             setListening(false);
@@ -41,6 +62,11 @@ export const VoiceInput = ({ onResult }: Props) => {
         });
         setListening(true);
     }, [listening]);
+
+    // Don't render if voice input not available
+    if (!isVoiceAvailable) {
+        return null;
+    }
 
     return (
         <Pressable

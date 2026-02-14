@@ -13,6 +13,23 @@ export interface JournalEntry {
     note: string;
 }
 
+export interface Category {
+    id: string;
+    name: string;
+    color: string; // Hex color
+    icon?: string; // Emoji
+}
+
+export interface BrainNote {
+    id: string;
+    title: string;
+    content: string; // Markdown text
+    categories: string[]; // Category IDs
+    linkedTasks: string[]; // Task IDs
+    createdAt: number;
+    updatedAt: number;
+}
+
 export interface Task {
     id: string;
     text: string;
@@ -20,6 +37,9 @@ export interface Task {
     createdAt: number;
     completedAt?: number;
     journal?: JournalEntry;
+    deadline?: number; // Optional deadline timestamp
+    categories: string[]; // Category IDs
+    linkedNotes: string[]; // BrainNote IDs
 }
 
 export interface Settings {
@@ -27,6 +47,7 @@ export interface Settings {
     hapticStrength: 'off' | 'light' | 'medium' | 'heavy';
     notifyOnComplete: boolean;
     dailyReminderHour: number | null;
+    theme: 'light' | 'dark';
 }
 
 interface AppState {
@@ -34,12 +55,14 @@ interface AppState {
     stack: Task[];
     backlog: Task[];
     history: Task[];
+    brainNotes: BrainNote[];
+    categories: Category[];
     timerStart: number | null;
     pendingJournalTaskId: string | null;
     settings: Settings;
 
     // Stack Actions
-    addTask: (text: string, isNow: boolean) => void;
+    addTask: (text: string, isNow: boolean, deadline?: number, categories?: string[]) => void;
     completeTop: () => void;
     deferTop: () => void;
     promote: (id: string) => void;
@@ -53,6 +76,19 @@ interface AppState {
     reorderBacklog: (fromIndex: number, toIndex: number) => void;
     editTask: (id: string, newText: string) => void;
     deleteTask: (id: string) => void;
+    setTaskDeadline: (id: string, deadline: number | null) => void;
+    setTaskCategories: (id: string, categories: string[]) => void;
+    linkTaskToNote: (taskId: string, noteId: string) => void;
+
+    // Brain Notes
+    addNote: (title: string, content: string, categories?: string[]) => void;
+    updateNote: (id: string, updates: Partial<Omit<BrainNote, 'id' | 'createdAt'>>) => void;
+    deleteNote: (id: string) => void;
+
+    // Categories
+    addCategory: (name: string, color: string, icon?: string) => void;
+    updateCategory: (id: string, updates: Partial<Omit<Category, 'id'>>) => void;
+    deleteCategory: (id: string) => void;
 
     // Settings
     updateSettings: (partial: Partial<Settings>) => void;
@@ -60,6 +96,7 @@ interface AppState {
     // Data Management
     exportData: () => Promise<void>;
     exportCSV: () => Promise<void>;
+    exportMarkdown: () => Promise<void>;
     importData: (json: string) => void;
 }
 
@@ -68,6 +105,7 @@ const DEFAULT_SETTINGS: Settings = {
     hapticStrength: 'medium',
     notifyOnComplete: true,
     dailyReminderHour: 9,
+    theme: 'dark',
 };
 
 const hapticMap = {
@@ -88,17 +126,22 @@ export const useStore = create<AppState>()(
             stack: [],
             backlog: [],
             history: [],
+            brainNotes: [],
+            categories: [],
             timerStart: null,
             pendingJournalTaskId: null,
             settings: DEFAULT_SETTINGS,
 
-            addTask: (text, isNow) => {
+            addTask: (text, isNow, deadline, categories = []) => {
                 doHaptic(get().settings.hapticStrength);
                 const task: Task = {
                     id: Date.now().toString(),
                     text,
                     type: isNow ? 'NOW' : 'LATER',
                     createdAt: Date.now(),
+                    categories,
+                    linkedNotes: [],
+                    ...(deadline && { deadline }),
                 };
                 if (isNow) {
                     set(s => ({ stack: [task, ...s.stack], timerStart: Date.now() }));
@@ -184,6 +227,75 @@ export const useStore = create<AppState>()(
                 }));
             },
 
+            setTaskDeadline: (id, deadline) => {
+                set(s => ({
+                    stack: s.stack.map(t => t.id === id ? { ...t, deadline: deadline ?? undefined } : t),
+                    backlog: s.backlog.map(t => t.id === id ? { ...t, deadline: deadline ?? undefined } : t),
+                }));
+            },
+
+            setTaskCategories: (id, categories) => {
+                set(s => ({
+                    stack: s.stack.map(t => t.id === id ? { ...t, categories } : t),
+                    backlog: s.backlog.map(t => t.id === id ? { ...t, categories } : t),
+                }));
+            },
+
+            linkTaskToNote: (taskId, noteId) => {
+                set(s => ({
+                    stack: s.stack.map(t => t.id === taskId ? { ...t, linkedNotes: [...t.linkedNotes, noteId] } : t),
+                    backlog: s.backlog.map(t => t.id === taskId ? { ...t, linkedNotes: [...t.linkedNotes, noteId] } : t),
+                    history: s.history.map(t => t.id === taskId ? { ...t, linkedNotes: [...t.linkedNotes, noteId] } : t),
+                }));
+            },
+
+            // Brain Notes
+            addNote: (title, content, categories = []) => {
+                const note: BrainNote = {
+                    id: Date.now().toString(),
+                    title,
+                    content,
+                    categories,
+                    linkedTasks: [],
+                    createdAt: Date.now(),
+                    updatedAt: Date.now(),
+                };
+                set(s => ({ brainNotes: [...s.brainNotes, note] }));
+            },
+
+            updateNote: (id, updates) => {
+                set(s => ({
+                    brainNotes: s.brainNotes.map(n =>
+                        n.id === id ? { ...n, ...updates, updatedAt: Date.now() } : n
+                    ),
+                }));
+            },
+
+            deleteNote: (id) => {
+                set(s => ({ brainNotes: s.brainNotes.filter(n => n.id !== id) }));
+            },
+
+            // Categories
+            addCategory: (name, color, icon) => {
+                const category: Category = {
+                    id: Date.now().toString(),
+                    name,
+                    color,
+                    ...(icon && { icon }),
+                };
+                set(s => ({ categories: [...s.categories, category] }));
+            },
+
+            updateCategory: (id, updates) => {
+                set(s => ({
+                    categories: s.categories.map(c => c.id === id ? { ...c, ...updates } : c),
+                }));
+            },
+
+            deleteCategory: (id) => {
+                set(s => ({ categories: s.categories.filter(c => c.id !== id) }));
+            },
+
             // Settings
             updateSettings: (partial) => {
                 set(s => ({ settings: { ...s.settings, ...partial } }));
@@ -212,6 +324,95 @@ export const useStore = create<AppState>()(
                 const csv = header + rows;
                 const uri = FileSystem.documentDirectory + 'anchor_history.csv';
                 await FileSystem.writeAsStringAsync(uri, csv);
+                await Sharing.shareAsync(uri);
+            },
+
+            exportMarkdown: async () => {
+                const { history } = get();
+                const now = new Date();
+                const filename = `anchor_export_${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}.md`;
+
+                // YAML frontmatter
+                let markdown = `---\n`;
+                markdown += `title: Anchor Task Export\n`;
+                markdown += `date: ${now.toISOString()}\n`;
+                markdown += `total_tasks: ${history.length}\n`;
+                markdown += `app_version: "4.0 Ironclad"\n`;
+                markdown += `---\n\n`;
+                markdown += `# Anchor Task History\n\n`;
+
+                // Group tasks by date
+                const tasksByDate = new Map<string, typeof history>();
+                history.forEach(task => {
+                    if (task.completedAt) {
+                        const date = new Date(task.completedAt);
+                        const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                        if (!tasksByDate.has(dateKey)) {
+                            tasksByDate.set(dateKey, []);
+                        }
+                        tasksByDate.get(dateKey)!.push(task);
+                    }
+                });
+
+                // Sort dates (newest first)
+                const sortedDates = Array.from(tasksByDate.keys()).sort((a, b) => b.localeCompare(a));
+
+                // Write each day's tasks
+                sortedDates.forEach(dateKey => {
+                    const tasks = tasksByDate.get(dateKey)!;
+                    const date = new Date(dateKey);
+                    const dayName = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                    markdown += `## ${dayName}\n\n`;
+
+                    tasks.forEach(task => {
+                        const time = task.completedAt ? new Date(task.completedAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '';
+
+                        // Task checkbox
+                        markdown += `- [x] ${task.text}`;
+
+                        // Add time
+                        if (time) {
+                            markdown += ` ⏰${time}`;
+                        }
+
+                        // Add energy/focus tags
+                        if (task.journal) {
+                            markdown += ` #energy-${task.journal.energy} #focus-${task.journal.focus}`;
+                        }
+
+                        markdown += `\n`;
+
+                        // Add journal note if present
+                        if (task.journal?.note) {
+                            markdown += `  - 📝 *${task.journal.note}*\n`;
+                        }
+                    });
+
+                    markdown += `\n`;
+                });
+
+                // Summary stats
+                const journaledCount = history.filter(t => t.journal).length;
+                const avgEnergy = journaledCount > 0
+                    ? (history.reduce((s, t) => s + (t.journal?.energy ?? 0), 0) / journaledCount).toFixed(1)
+                    : '0';
+                const avgFocus = journaledCount > 0
+                    ? (history.reduce((s, t) => s + (t.journal?.focus ?? 0), 0) / journaledCount).toFixed(1)
+                    : '0';
+
+                markdown += `---\n\n`;
+                markdown += `## Summary\n\n`;
+                markdown += `- **Total Completed Tasks**: ${history.length}\n`;
+                markdown += `- **Tasks with Journal Entries**: ${journaledCount}\n`;
+                markdown += `- **Average Energy Level**: ${avgEnergy}/5\n`;
+                markdown += `- **Average Focus Quality**: ${avgFocus}/5\n`;
+                markdown += `\n---\n`;
+                markdown += `\n*Exported from Anchor - Built for minds that work differently* 🎯`;
+
+                // Write and share
+                const uri = FileSystem.documentDirectory + filename;
+                await FileSystem.writeAsStringAsync(uri, markdown);
                 await Sharing.shareAsync(uri);
             },
 

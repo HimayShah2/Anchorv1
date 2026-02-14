@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, Pressable, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack } from 'expo-router';
+import { Stack, Link } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SimpleChart } from '../components/SimpleChart';
 import { subDays, isSameDay, differenceInDays, startOfDay } from 'date-fns';
@@ -169,6 +169,19 @@ export default function Analytics() {
                             </View>
                         </View>
                     ))}
+                    {history.length > 10 && (
+                        <Link href="/history" asChild>
+                            <Pressable
+                                className="bg-surface border border-dim p-3 rounded-xl mt-2"
+                                accessibilityLabel="View full history"
+                                accessibilityRole="button"
+                            >
+                                <Text className="text-focus text-sm font-bold text-center">
+                                    View All {history.length} Tasks →
+                                </Text>
+                            </Pressable>
+                        </Link>
+                    )}
                 </View>
             </ScrollView>
         </SafeAreaView>
