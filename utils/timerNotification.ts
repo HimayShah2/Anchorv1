@@ -3,11 +3,13 @@ import { useStore } from '../store/useStore';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: false,
-        shouldSetBadge: false,
-    }),
+    handleNotification: async () => {
+        return {
+            shouldShowAlert: true,
+            shouldPlaySound: false,
+            shouldSetBadge: false,
+        };
+    },
 });
 
 let timerNotificationId: string | null = null;

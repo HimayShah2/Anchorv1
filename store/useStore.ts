@@ -56,6 +56,7 @@ export interface Settings {
     fontSize: 'small' | 'medium' | 'large' | 'xlarge'; // Accessibility font size
     highContrast: boolean; // High contrast mode for accessibility
     reduceAnimations: boolean; // Reduce animations for accessibility
+    microsoftTodoSync: boolean; // Sync with Microsoft To Do
 }
 
 interface AppState {
@@ -119,6 +120,7 @@ const DEFAULT_SETTINGS: Settings = {
     fontSize: 'medium',
     highContrast: false,
     reduceAnimations: false,
+    microsoftTodoSync: false,
 };
 
 const hapticMap = {

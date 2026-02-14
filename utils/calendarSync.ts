@@ -1,6 +1,6 @@
 import * as Calendar from 'expo-calendar';
 import { Platform, Alert } from 'react-native';
-import { useStore } from './useStore';
+import type { Task } from '../store/useStore';
 
 /**
  * Calendar Integration Module
@@ -122,12 +122,11 @@ export async function deleteTaskEvent(eventId: string): Promise<boolean> {
 
 // Sync task with calendar (create/update/delete as needed)
 export async function syncTaskToCalendar(
-    taskId: string,
-    taskText: string,
-    deadline?: number,
-    existingEventId?: string
+    task: { id: string; text: string; deadline?: number; calendarEventId?: string }
 ): Promise<string | null> {
     try {
+        const { id: taskId, text: taskText, deadline, calendarEventId: existingEventId } = task;
+
         // If task has no deadline, delete event if it exists
         if (!deadline) {
             if (existingEventId) {
