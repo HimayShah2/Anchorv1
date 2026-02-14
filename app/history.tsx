@@ -4,13 +4,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { subDays, startOfDay, format } from 'date-fns';
+import TaskEditModal from '../components/TaskEditModal';
+import type { Task } from '../store/useStore';
 
 type Period = 7 | 30 | 'all';
 
 export default function History() {
-    const history = useStore(s => s.history);
+    const { history, categories } = useStore();
     const [search, setSearch] = useState('');
     const [period, setPeriod] = useState<Period>(7);
+    const [editingTask, setEditingTask] = useState<Task | null>(null);
 
     // Filter by period and search
     const filtered = useMemo(() => {
@@ -139,60 +142,92 @@ export default function History() {
                             </View>
 
                             {/* Tasks for this date */}
-                            {tasks.map(task => (
-                                <View
-                                    key={task.id}
-                                    className="bg-surface border border-dim rounded-xl p-4 mb-3"
-                                >
-                                    {/* Task text */}
-                                    <View className="flex-row items-start mb-2">
-                                        <Text className="text-primary text-lg mr-2">✓</Text>
-                                        <Text className="text-white text-base flex-1 leading-tight">
-                                            {task.text}
-                                        </Text>
-                                    </View>
+                            {tasks.map(task => {
+                                const taskCategories = task.categories?.map(catId =>
+                                    categories.find(c => c.id === catId)
+                                ).filter(Boolean) || [];
 
-                                    {/* Timestamp */}
-                                    <Text className="text-gray-600 text-[10px] mb-2">
-                                        Completed at {task.completedAt ? format(new Date(task.completedAt), 'h:mm a') : '—'}
-                                    </Text>
+                                return (
+                                    <Pressable
+                                        key={task.id}
+                                        onLongPress={() => setEditingTask(task)}
+                                        className="bg-surface border border-dim rounded-xl p-4 mb-3"
+                                    >
+                                        {/* Task text */}
+                                        <View className="flex-row items-start mb-2">
+                                            <Text className="text-primary text-lg mr-2">✓</Text>
+                                            <Text className="text-white text-base flex-1 leading-tight">
+                                                {task.text}
+                                            </Text>
+                                        </View>
 
-                                    {/* Journal Entry */}
-                                    {task.journal && (
-                                        <View className="bg-bg rounded-lg p-3 mt-2 border border-dim/50">
-                                            <View className="flex-row items-center mb-2">
-                                                <View className="flex-1 flex-row gap-3">
-                                                    <View className="flex-row items-center">
-                                                        <Text className="text-gray-500 text-[10px] uppercase font-bold mr-1">
-                                                            Energy
-                                                        </Text>
-                                                        <Text className="text-primary text-sm font-bold">
-                                                            {task.journal.energy}/5
+                                        {/* Categories */}
+                                        {taskCategories.length > 0 && (
+                                            <View className="flex-row flex-wrap gap-1.5 mb-2">
+                                                {taskCategories.map(cat => cat && (
+                                                    <View
+                                                        key={cat.id}
+                                                        className="px-2 py-1 rounded-full"
+                                                        style={{ backgroundColor: cat.color + '33' }}
+                                                    >
+                                                        <Text className="text-xs" style={{ color: cat.color }}>
+                                                            {cat.icon} {cat.name}
                                                         </Text>
                                                     </View>
-                                                    <View className="flex-row items-center">
-                                                        <Text className="text-gray-500 text-[10px] uppercase font-bold mr-1">
-                                                            Focus
-                                                        </Text>
-                                                        <Text className="text-focus text-sm font-bold">
-                                                            {task.journal.focus}/5
-                                                        </Text>
+                                                ))}
+                                            </View>
+                                        )}
+
+                                        {/* Timestamp */}
+                                        <Text className="text-gray-600 text-[10px] mb-2">
+                                            Completed at {task.completedAt ? format(new Date(task.completedAt), 'h:mm a') : '—'}
+                                            {' • Long press to edit'}
+                                        </Text>
+
+                                        {/* Journal Entry */}
+                                        {task.journal && (
+                                            <View className="bg-bg rounded-lg p-3 mt-2 border border-dim/50">
+                                                <View className="flex-row items-center mb-2">
+                                                    <View className="flex-1 flex-row gap-3">
+                                                        <View className="flex-row items-center">
+                                                            <Text className="text-gray-500 text-[10px] uppercase font-bold mr-1">
+                                                                Energy
+                                                            </Text>
+                                                            <Text className="text-primary text-sm font-bold">
+                                                                {task.journal.energy}/5
+                                                            </Text>
+                                                        </View>
+                                                        <View className="flex-row items-center">
+                                                            <Text className="text-gray-500 text-[10px] uppercase font-bold mr-1">
+                                                                Focus
+                                                            </Text>
+                                                            <Text className="text-focus text-sm font-bold">
+                                                                {task.journal.focus}/5
+                                                            </Text>
+                                                        </View>
                                                     </View>
                                                 </View>
+                                                {task.journal.note && (
+                                                    <Text className="text-gray-400 text-sm italic leading-snug">
+                                                        "{task.journal.note}"
+                                                    </Text>
+                                                )}
                                             </View>
-                                            {task.journal.note && (
-                                                <Text className="text-gray-400 text-sm italic leading-snug">
-                                                    "{task.journal.note}"
-                                                </Text>
-                                            )}
-                                        </View>
-                                    )}
-                                </View>
-                            ))}
+                                        )}
+                                    </Pressable>
+                                );
+                            })}
                         </View>
                     ))
                 )}
             </ScrollView>
+
+            {/* Edit Modal */}
+            <TaskEditModal
+                task={editingTask}
+                visible={!!editingTask}
+                onClose={() => setEditingTask(null)}
+            />
         </SafeAreaView>
     );
 }

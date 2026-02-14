@@ -11,6 +11,8 @@ export interface JournalEntry {
     energy: number;   // 1-5
     focus: number;    // 1-5
     note: string;
+    mood?: string[];  // Mood tags (productive, distracted, etc.)
+    prompt?: string;  // Journal prompt that was used
 }
 
 export interface Category {
@@ -40,6 +42,7 @@ export interface Task {
     deadline?: number; // Optional deadline timestamp
     categories: string[]; // Category IDs
     linkedNotes: string[]; // BrainNote IDs
+    calendarEventId?: string; // Calendar event ID if synced
 }
 
 export interface Settings {
@@ -48,6 +51,11 @@ export interface Settings {
     notifyOnComplete: boolean;
     dailyReminderHour: number | null;
     theme: 'light' | 'dark';
+    calendarSync: boolean; // Sync tasks with device calendar
+    autoDND: boolean; // Auto-enable Do Not Disturb when task starts
+    fontSize: 'small' | 'medium' | 'large' | 'xlarge'; // Accessibility font size
+    highContrast: boolean; // High contrast mode for accessibility
+    reduceAnimations: boolean; // Reduce animations for accessibility
 }
 
 interface AppState {
@@ -106,6 +114,11 @@ const DEFAULT_SETTINGS: Settings = {
     notifyOnComplete: true,
     dailyReminderHour: 9,
     theme: 'dark',
+    calendarSync: false,
+    autoDND: false,
+    fontSize: 'medium',
+    highContrast: false,
+    reduceAnimations: false,
 };
 
 const hapticMap = {

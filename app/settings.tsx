@@ -15,7 +15,7 @@ const HAPTIC_OPTIONS: { label: string; value: Settings['hapticStrength'] }[] = [
 
 export default function SettingsScreen() {
     const { settings, updateSettings, panic } = useStore();
-    const { theme } = settings;
+    const { theme, calendarSync } = settings;
 
     const confirmReset = () => {
         Alert.alert(
@@ -138,6 +138,80 @@ export default function SettingsScreen() {
                             </Text>
                         </Pressable>
                     </View>
+                </View>
+
+                {/* Calendar Sync */}
+                <View className="bg-surface p-4 rounded-2xl border border-dim mb-3">
+                    <View className="flex-row items-center justify-between mb-2">
+                        <View className="flex-1">
+                            <Text className="text-white text-base font-bold">📅 Calendar Sync</Text>
+                            <Text className="text-gray-500 text-xs">Sync deadlines to device calendar</Text>
+                        </View>
+                        <Pressable
+                            onPress={async () => {
+                                if (!calendarSync) {
+                                    // Request permissions
+                                    const { requestCalendarPermissions } = await import('../utils/calendarSync');
+                                    const granted = await requestCalendarPermissions();
+                                    if (granted) {
+                                        updateSettings({ calendarSync: true });
+                                    } else {
+                                        Alert.alert(
+                                            'Permission Denied',
+                                            'Calendar access is required to sync tasks. Please enable in Settings.'
+                                        );
+                                    }
+                                } else {
+                                    updateSettings({ calendarSync: false });
+                                }
+                            }}
+                            className={`w-12 h-6 rounded-full ${calendarSync ? 'bg-primary' : 'bg-dim'} flex-row items-center p-1`}
+                        >
+                            <View
+                                className={`w-4 h-4 rounded-full bg-white ${calendarSync ? 'ml-auto' : ''}`}
+                            />
+                        </Pressable>
+                    </View>
+                    {calendarSync && (
+                        <Text className="text-gray-500 text-xs">
+                            ✓ Tasks with deadlines will appear in your calendar
+                        </Text>
+                    )}
+                </View>
+
+                {/* Do Not Disturb */}
+                <View className="bg-surface p-4 rounded-2xl border border-dim mb-3">
+                    <View className="flex-row items-center justify-between mb-2">
+                        <View className="flex-1">
+                            <Text className="text-white text-base font-bold">📵 Auto Do Not Disturb</Text>
+                            <Text className="text-gray-500 text-xs">Silence notifications during tasks</Text>
+                        </View>
+                        <Pressable
+                            onPress={async () => {
+                                const autoDND = settings.autoDND || false;
+                                if (!autoDND) {
+                                    // Request permissions
+                                    const { requestDNDPermissions } = await import('../utils/dndManager');
+                                    const granted = await requestDNDPermissions();
+                                    if (granted) {
+                                        updateSettings({ autoDND: true });
+                                    }
+                                } else {
+                                    updateSettings({ autoDND: false });
+                                }
+                            }}
+                            className={`w-12 h-6 rounded-full ${settings.autoDND ? 'bg-primary' : 'bg-dim'} flex-row items-center p-1`}
+                        >
+                            <View
+                                className={`w-4 h-4 rounded-full bg-white ${settings.autoDND ? 'ml-auto' : ''}`}
+                            />
+                        </Pressable>
+                    </View>
+                    {settings.autoDND && (
+                        <Text className="text-gray-500 text-xs">
+                            ✓ Phone will enter silent mode when you start a task
+                        </Text>
+                    )}
                 </View>
 
                 {/* Data Management */}

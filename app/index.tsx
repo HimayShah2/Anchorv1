@@ -44,47 +44,47 @@ export default function Home() {
                 <View className="flex-row gap-2">
                     <Link href="/brain" asChild>
                         <Pressable
-                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            className="bg-surface px-4 py-3 rounded-full border border-dim"
                             accessibilityLabel="View brain notes"
                             accessibilityRole="button"
                         >
-                            <Text className="text-primary font-bold text-xs">🧠</Text>
+                            <Text className="text-primary font-bold text-base">🧠</Text>
                         </Pressable>
                     </Link>
                     <Link href="/history" asChild>
                         <Pressable
-                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            className="bg-surface px-4 py-3 rounded-full border border-dim"
                             accessibilityLabel="View history"
                             accessibilityRole="button"
                         >
-                            <Text className="text-primary font-bold text-xs">📜</Text>
+                            <Text className="text-primary font-bold text-base">📜</Text>
                         </Pressable>
                     </Link>
                     <Link href="/backlog" asChild>
                         <Pressable
-                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            className="bg-surface px-4 py-3 rounded-full border border-dim"
                             accessibilityLabel="View backlog"
                             accessibilityRole="button"
                         >
-                            <Text className="text-accent font-bold text-xs">📋</Text>
+                            <Text className="text-accent font-bold text-base">📋</Text>
                         </Pressable>
                     </Link>
                     <Link href="/analytics" asChild>
                         <Pressable
-                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            className="bg-surface px-4 py-3 rounded-full border border-dim"
                             accessibilityLabel="View analytics"
                             accessibilityRole="button"
                         >
-                            <Text className="text-focus font-bold text-xs">📊</Text>
+                            <Text className="text-focus font-bold text-base">📊</Text>
                         </Pressable>
                     </Link>
                     <Link href="/settings" asChild>
                         <Pressable
-                            className="bg-surface px-3 py-2 rounded-full border border-dim"
+                            className="bg-surface px-4 py-3 rounded-full border border-dim"
                             accessibilityLabel="Settings"
                             accessibilityRole="button"
                         >
-                            <Text className="text-gray-400 font-bold text-xs">⚙️</Text>
+                            <Text className="text-gray-400 font-bold text-base">⚙️</Text>
                         </Pressable>
                     </Link>
                 </View>
@@ -96,11 +96,43 @@ export default function Home() {
                     <View className="bg-surface p-6 rounded-3xl border border-dim">
                         <Text className="text-focus text-xs font-bold uppercase mb-4">Current Focus</Text>
                         <Text
-                            className="text-white text-3xl font-bold leading-tight mb-8"
+                            className="text-white text-3xl font-bold leading-tight mb-4"
                             accessibilityRole="header"
                         >
                             {anchor.text}
                         </Text>
+
+                        {/* Deadline Display */}
+                        {anchor.deadline && (
+                            <View className="flex-row items-center mb-3">
+                                <Text className={`text-sm font-bold ${anchor.deadline < Date.now() ? 'text-panic' :
+                                    anchor.deadline < Date.now() + 86400000 ? 'text-focus' :
+                                        'text-gray-400'
+                                    }`}>
+                                    ⏰ Due {format(anchor.deadline, 'MMM d, yyyy')}
+                                </Text>
+                            </View>
+                        )}
+
+                        {/* Category Chips */}
+                        {anchor.categories.length > 0 && (
+                            <View className="flex-row flex-wrap gap-2 mb-4">
+                                {anchor.categories.map(catId => {
+                                    const cat = categories.find(c => c.id === catId);
+                                    return cat ? (
+                                        <View
+                                            key={cat.id}
+                                            className="px-3 py-1.5 rounded-full"
+                                            style={{ backgroundColor: cat.color + '33' }}
+                                        >
+                                            <Text className="text-sm font-bold" style={{ color: cat.color }}>
+                                                {cat.icon} {cat.name}
+                                            </Text>
+                                        </View>
+                                    ) : null;
+                                })}
+                            </View>
+                        )}
 
                         <View className="flex-row gap-4">
                             <Pressable
@@ -139,19 +171,52 @@ export default function Home() {
                         {backlog.length > 0 && (
                             <ScrollView className="max-h-48 w-full">
                                 <Text className="text-gray-500 text-xs font-bold uppercase mb-2">From Backlog</Text>
-                                {backlog.slice(-3).reverse().map(t => (
-                                    <Pressable
-                                        key={t.id}
-                                        onPress={() => promote(t.id)}
-                                        className="bg-surface p-4 mb-2 rounded-xl border border-dim"
-                                        accessibilityLabel={`Promote task: ${t.text}`}
-                                        accessibilityRole="button"
-                                        style={{ minHeight: 48 }}
-                                    >
-                                        <Text className="text-gray-300">{t.text}</Text>
-                                        <Text className="text-gray-600 text-[10px] mt-1">Tap to promote</Text>
-                                    </Pressable>
-                                ))}
+                                {backlog.slice(-3).reverse().map(t => {
+                                    const taskCategories = t.categories.map(catId => categories.find(c => c.id === catId)).filter(Boolean);
+                                    const hasDeadline = t.deadline && t.deadline > Date.now();
+                                    const isOverdue = t.deadline && t.deadline < Date.now();
+
+                                    return (
+                                        <Pressable
+                                            key={t.id}
+                                            onPress={() => promote(t.id)}
+                                            className="bg-surface p-3 mb-2 rounded-xl border border-dim"
+                                            accessibilityLabel={`Promote task: ${t.text}`}
+                                            accessibilityRole="button"
+                                            style={{ minHeight: 48 }}
+                                        >
+                                            <Text className="text-white text-sm mb-1">{t.text}</Text>
+
+                                            {/* Metadata Row */}
+                                            <View className="flex-row items-center gap-2 flex-wrap">
+                                                {/* Deadline Badge */}
+                                                {t.deadline && (
+                                                    <View className={`px-2 py-0.5 rounded-full ${isOverdue ? 'bg-panic' : 'bg-focus/30'}`}>
+                                                        <Text className={`text-[10px] font-bold ${isOverdue ? 'text-white' : 'text-focus'}`}>
+                                                            ⏰ {format(t.deadline, 'MMM d')}
+                                                        </Text>
+                                                    </View>
+                                                )}
+
+                                                {/* Category Chips */}
+                                                {taskCategories.slice(0, 2).map(cat => cat && (
+                                                    <View
+                                                        key={cat.id}
+                                                        className="px-2 py-0.5 rounded-full"
+                                                        style={{ backgroundColor: cat.color + '33' }}
+                                                    >
+                                                        <Text className="text-[10px] font-bold" style={{ color: cat.color }}>
+                                                            {cat.icon}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                                {taskCategories.length > 2 && (
+                                                    <Text className="text-gray-500 text-[10px]">+{taskCategories.length - 2}</Text>
+                                                )}
+                                            </View>
+                                        </Pressable>
+                                    );
+                                })}
                             </ScrollView>
                         )}
                     </View>

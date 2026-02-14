@@ -16,8 +16,13 @@ const PRESET_COLORS = [
     '#84cc16', // lime
 ];
 
-// Preset emoji icons
-const PRESET_ICONS = ['💼', '🏠', '💪', '📚', '💡', '🎯', '🚀', '⭐', '🔥', '✨'];
+// Preset emoji icons with better variety
+const PRESET_ICONS = [
+    '💼', '🏠', '💪', '📚', '💡', '🎯', '🚀', '⭐',
+    '🔥', '✨', '🎨', '🎵', '🎮', '⚡', '🌟', '💻',
+    '📱', '✅', '🏃', '🧠', '❤️', '🌈', '🔔', '📝',
+    '🎓', '🛠️', '🌱', '⚙️', '🏆', '🎁', '📊', '🗂️'
+];
 
 export default function Categories() {
     const { categories, addCategory, updateCategory, deleteCategory, brainNotes, stack, backlog, history } = useStore();

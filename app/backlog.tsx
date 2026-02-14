@@ -82,100 +82,142 @@ export default function Backlog() {
                 }}
             />
 
-                {/* Search Bar */}
-                <View className="bg-surface rounded-2xl px-4 py-2 flex-row items-center border border-dim mb-4">
-                    <TextInput
-                        value={search}
-                        onChangeText={setSearch}
-                        className="flex-1 text-white text-base"
-                        placeholder="Search tasks..."
-                        placeholderTextColor="#52525b"
-                    />
-                    {search && (
-                        <Pressable onPress={() => setSearch('')}>
-                            <Text className="text-gray-500">✕</Text>
-                        </Pressable>
-                    )}
-                </View>
-
-                {/* Sort Toggle */}
-                <View className="flex-row gap-2 mb-4">
-                    <Pressable
-                        onPress={() => setSortBy('default')}
-                        className={`px-4 py-2 rounded-full ${sortBy === 'default' ? 'bg-primary' : 'bg-surface border border-dim'}`}
-                    >
-                        <Text className={`text-xs font-bold ${sortBy === 'default' ? 'text-black' : 'text-gray-400'}`}>
-                            Order Added
-                        </Text>
+            {/* Search Bar */}
+            <View className="bg-surface rounded-2xl px-4 py-2 flex-row items-center border border-dim mb-4">
+                <TextInput
+                    value={search}
+                    onChangeText={setSearch}
+                    className="flex-1 text-white text-base"
+                    placeholder="Search tasks..."
+                    placeholderTextColor="#52525b"
+                />
+                {search && (
+                    <Pressable onPress={() => setSearch('')}>
+                        <Text className="text-gray-500">✕</Text>
                     </Pressable>
-                    <Pressable
-                        onPress={() => setSortBy('deadline')}
-                        className={`px-4 py-2 rounded-full ${sortBy === 'deadline' ? 'bg-panic' : 'bg-surface border border-dim'}`}
-                    >
-                        <Text className={`text-xs font-bold ${sortBy === 'deadline' ? 'text-white' : 'text-gray-400'}`}>
-                            ⏰ By Deadline
-                        </Text>
-                    </Pressable>
-                </View>
+                )}
+            </View>
 
-                <ScrollView showsVerticalScrollIndicator={false}>
-                    {filtered.length === 0 ? (
-                        <View className="items-center justify-center py-12">
-                            <Text className="text-gray-500 text-base">
-                                {search ? 'No matching tasks' : 'Backlog empty'}
-                            </Text>
-                        </View>
-                    ) : (
-                        filtered.map(task => {
-                            const isEditing = editingId === task.id;
-                            const deadlineStatus = getDeadlineStatus(task.deadline);
-                            const taskCategories = task.categories.map(getCategoryById).filter(Boolean);
-                            
-                            return (
-                                <View
-                                    key={task.id}
-                                    className={`bg-surface p-4 rounded-2xl mb-3 border ${
-                                        deadlineStatus === 'overdue' ? 'border-panic' :
+            {/* Sort Toggle */}
+            <View className="flex-row gap-2 mb-4">
+                <Pressable
+                    onPress={() => setSortBy('default')}
+                    className={`px-4 py-2 rounded-full ${sortBy === 'default' ? 'bg-primary' : 'bg-surface border border-dim'}`}
+                >
+                    <Text className={`text-xs font-bold ${sortBy === 'default' ? 'text-black' : 'text-gray-400'}`}>
+                        Order Added
+                    </Text>
+                </Pressable>
+                <Pressable
+                    onPress={() => setSortBy('deadline')}
+                    className={`px-4 py-2 rounded-full ${sortBy === 'deadline' ? 'bg-panic' : 'bg-surface border border-dim'}`}
+                >
+                    <Text className={`text-xs font-bold ${sortBy === 'deadline' ? 'text-white' : 'text-gray-400'}`}>
+                        ⏰ By Deadline
+                    </Text>
+                </Pressable>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false}>
+                {filtered.length === 0 ? (
+                    <View className="items-center justify-center py-12">
+                        <Text className="text-gray-500 text-base">
+                            {search ? 'No matching tasks' : 'Backlog empty'}
+                        </Text>
+                    </View>
+                ) : (
+                    filtered.map(task => {
+                        const isEditing = editingId === task.id;
+                        const deadlineStatus = getDeadlineStatus(task.deadline);
+                        const taskCategories = task.categories.map(getCategoryById).filter(Boolean);
+
+                        return (
+                            <View
+                                key={task.id}
+                                className={`bg-surface p-4 rounded-2xl mb-3 border ${deadlineStatus === 'overdue' ? 'border-panic' :
                                         deadlineStatus === 'today' ? 'border-panic' :
-                                        deadlineStatus === 'tomorrow' || deadlineStatus === 'soon' ? 'border-focus' :
-                                        'border-dim'
+                                            deadlineStatus === 'tomorrow' || deadlineStatus === 'soon' ? 'border-focus' :
+                                                'border-dim'
                                     }`}
-                                >
-                                    {isEditing ? (
-                                        <View>
-                                            <TextInput
-                                                value={editText}
-                                                onChangeText={setEditText}
-                                                className="text-white text-base mb-3 p-2 bg-dim rounded-xl"
-                                                multiline
-                                                autoFocus
-                                            />
-                                            <View className="flex-row gap-2">
-                                                <Pressable
-                                                    onPress={saveEdit}
-                                                    className="flex-1 bg-primary py-2 rounded-xl"
-                                                >
-                                                    <Text className="text-black text-center font-bold">Save</Text>
-                                                </Pressable>
-                                                <Pressable
-                                                    onPress={() => setEditingId(null)}
-                                                    className="flex-1 bg-dim py-2 rounded-xl"
-                                                >
-                                                    <Text className="text-white text-center font-bold">Cancel</Text>
-                                                </Pressable>
-                                            </View>
+                            >
+                                {isEditing ? (
+                                    <View>
+                                        <TextInput
+                                            value={editText}
+                                            onChangeText={setEditText}
+                                            className="text-white text-base mb-3 p-2 bg-dim rounded-xl"
+                                            multiline
+                                            autoFocus
+                                        />
+                                        <View className="flex-row gap-2">
+                                            <Pressable
+                                                onPress={saveEdit}
+                                                className="flex-1 bg-primary py-2 rounded-xl"
+                                            >
+                                                <Text className="text-black text-center font-bold">Save</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                onPress={() => setEditingId(null)}
+                                                className="flex-1 bg-dim py-2 rounded-xl"
+                                            >
+                                                <Text className="text-white text-center font-bold">Cancel</Text>
+                                            </Pressable>
                                         </View>
-                                    ) : (
-                                        <View>
-                                            <Text className="text-white text-base mb-2">{task.text}</Text>
+                                    </View>
+                                ) : (
+                                    <View>
+                                        <Text className="text-white text-base mb-2">{task.text}</Text>
+
+                                        {/* Deadline Display */}
+                                        {task.deadline && (
+                                            <View className="flex-row items-center mb-2">
+                                                <Text className={`text-xs font-bold ${deadlineStatus === 'overdue' || deadlineStatus === 'today' ? 'text-panic' :
+                                                        deadlineStatus === 'tomorrow' || deadlineStatus === 'soon' ? 'text-focus' :
+                                                            'text-gray-400'
+                                                    }`}>
+                                                    ⏰ {format(task.deadline, 'MMM d, yyyy')}
+                                                    {deadlineStatus === 'overdue' && ' (OVERDUE)'}
+                                                    {deadlineStatus === 'today' && ' (TODAY)'}
+                                                    {deadlineStatus === 'tomorrow' && ' (Tomorrow)'}
+                                                </Text>
+                                            </View>
+                                        )}
+
+                                        {/* Category Chips */}
+                                        {taskCategories.length > 0 && (
+                                            <View className="flex-row flex-wrap gap-1.5 mb-2">
+                                                {taskCategories.map(cat => cat && (
+                                                    <View
+                                                        key={cat.id}
+                                                        className="px-2 py-1 rounded-full"
+                                                        style={{ backgroundColor: cat.color + '33' }}
+                                                    >
+                                                        <Text className="text-xs" style={{ color: cat.color }}>
+                                                            {cat.icon} {cat.name}
+                                                        </Text>
+                                                    </View>
+                                                ))}
+                                            </View>
+                                        )}
+
+                                        <View className="flex-row gap-2 mt-2">
+                                            <Pressable
+                                                onPress={() => promote(task.id)}
+                                                className="flex-1 bg-primary py-2 rounded-xl"
+                                            >
+                                                <Text className="text-black text-center font-bold text-sm">DO NOW</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                onPress={() => startEdit(task.id, task.text)}
+                                                className="bg-dim px-4 py-2 rounded-xl"
+                                            >
+                                                <Text className="text-white font-bold text-sm">✏️</Text>
+                                            </Pressable>
                                             <Pressable
                                                 onPress={() => confirmDelete(task.id, task.text)}
-                                                className="w-10 bg-panic/20 py-2 rounded-lg items-center justify-center"
-                                                accessibilityLabel="Delete task"
-                                                accessibilityRole="button"
-                                                style={{ minHeight: 40 }}
+                                                className="bg-panic px-4 py-2 rounded-xl"
                                             >
-                                                <Text className="text-panic text-xs">✕</Text>
+                                                <Text className="text-white font-bold text-sm">🗑️</Text>
                                             </Pressable>
                                         </View>
                                     </View>
