@@ -138,29 +138,29 @@ export default function SettingsScreen() {
                             <Text className="text-gray-600">→</Text>
                         </View>
                     </Pressable>
-
-                    {/* Hyperfocus Protection */}
-                    <Text className="text-gray-500 font-bold uppercase text-xs mb-2 mt-6">Hyperfocus Protection</Text>
-                    <Pressable
-                        onPress={() => {
-                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                            updateSettings({ hyperfocusProtection: !settings.hyperfocusProtection });
-                        }}
-                        className="bg-surface p-4 rounded-2xl border border-dim mb-4"
-                    >
-                        <View className="flex-row justify-between items-center">
-                            <View className="flex-1 mr-4">
-                                <Text className="text-white font-bold text-base mb-1">Lock Buttons During Focus</Text>
-                                <Text className="text-gray-500 text-sm">Prevents task-switching for 15 minutes when timer starts</Text>
-                            </View>
-                            <View className={`w-12 h-6 rounded-full ${settings.hyperfocusProtection ? 'bg-sky-400' : 'bg-zinc-700'}`}>
-                                <View
-                                    className={`w-5 h-5 rounded-full bg-white mt-0.5 ${settings.hyperfocusProtection ? 'ml-6' : 'ml-0.5'}`}
-                                />
-                            </View>
-                        </View>
-                    </Pressable>
                 </Link>
+
+                {/* Hyperfocus Protection */}
+                <Text className="text-gray-500 font-bold uppercase text-xs mb-2 mt-6">Hyperfocus Protection</Text>
+                <Pressable
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                        updateSettings({ hyperfocusProtection: !settings.hyperfocusProtection });
+                    }}
+                    className="bg-surface p-4 rounded-2xl border border-dim mb-4"
+                >
+                    <View className="flex-row justify-between items-center">
+                        <View className="flex-1 mr-4">
+                            <Text className="text-white font-bold text-base mb-1">Lock Buttons During Focus</Text>
+                            <Text className="text-gray-500 text-sm">Prevents task-switching for 15 minutes when timer starts</Text>
+                        </View>
+                        <View className={`w-12 h-6 rounded-full ${settings.hyperfocusProtection ? 'bg-sky-400' : 'bg-zinc-700'}`}>
+                            <View
+                                className={`w-5 h-5 rounded-full bg-white mt-0.5 ${settings.hyperfocusProtection ? 'ml-6' : 'ml-0.5'}`}
+                            />
+                        </View>
+                    </View>
+                </Pressable>
 
                 {/* Theme */}
                 <View className="bg-surface p-4 rounded-2xl border border-dim mb-3">
