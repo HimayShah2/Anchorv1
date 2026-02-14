@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Pressable, ScrollView, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Pressable, ScrollView, Alert, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, Link } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -42,7 +42,7 @@ export default function SettingsScreen() {
 
                 {/* Timer Duration */}
                 <Text className="text-gray-500 font-bold uppercase text-xs mb-2">Timer Duration</Text>
-                <View className="flex-row gap-2 mb-6">
+                <View className="flex-row gap-2 mb-2">
                     {TIMER_PRESETS.map(mins => (
                         <Pressable
                             key={mins}
@@ -57,6 +57,26 @@ export default function SettingsScreen() {
                             </Text>
                         </Pressable>
                     ))}
+                </View>
+
+                {/* Custom Timer Input */}
+                <View className="flex-row items-center gap-2 mb-6">
+                    <Text className="text-gray-500 text-xs">Custom:</Text>
+                    <TextInput
+                        value={!TIMER_PRESETS.includes(settings.timerMinutes) ? String(settings.timerMinutes) : ''}
+                        onChangeText={(text) => {
+                            const mins = parseInt(text);
+                            if (!isNaN(mins) && mins > 0 && mins <= 180) {
+                                updateSettings({ timerMinutes: mins });
+                            }
+                        }}
+                        placeholder="min"
+                        placeholderTextColor="#52525b"
+                        keyboardType="number-pad"
+                        className="bg-surface border border-dim rounded-xl px-3 py-2 text-white flex-1"
+                        maxLength={3}
+                    />
+                    <Text className="text-gray-500 text-xs">minutes</Text>
                 </View>
 
                 {/* Haptic Strength */}

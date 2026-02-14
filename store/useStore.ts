@@ -156,6 +156,14 @@ export const useStore = create<AppState>()(
                     linkedNotes: [],
                     ...(deadline && { deadline }),
                 };
+
+                // Trigger DND if autoDND is enabled and this is an anchor task
+                if (isNow && get().settings.autoDND) {
+                    import('../utils/dndManager').then(({ enableDND }) => {
+                        enableDND();
+                    });
+                }
+
                 if (isNow) {
                     set(s => ({ stack: [task, ...s.stack], timerStart: Date.now() }));
                 } else {
@@ -169,6 +177,14 @@ export const useStore = create<AppState>()(
                 if (stack.length === 0) return;
                 const [done, ...rest] = stack;
                 const completed = { ...done, type: 'DONE' as const, completedAt: Date.now() };
+
+                // Disable DND if enabled
+                if (get().settings.autoDND) {
+                    import('../utils/dndManager').then(({ disableDND }) => {
+                        disableDND();
+                    });
+                }
+
                 set({
                     stack: rest,
                     history: [completed, ...get().history],
@@ -181,6 +197,14 @@ export const useStore = create<AppState>()(
                 const { stack, backlog } = get();
                 if (stack.length === 0) return;
                 const [deferred, ...rest] = stack;
+
+                // Disable DND if enabled
+                if (get().settings.autoDND) {
+                    import('../utils/dndManager').then(({ disableDND }) => {
+                        disableDND();
+                    });
+                }
+
                 set({
                     stack: rest,
                     backlog: [...backlog, { ...deferred, type: 'LATER' }],
